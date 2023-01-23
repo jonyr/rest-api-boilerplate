@@ -1,0 +1,13 @@
+components:
+  schemas:
+    BaseGet:
+      type: object
+      properties:
+        data:
+          type: object
+        error:
+          type: nullable
+          example: null
+        warning:
+          type: nullable
+          example: null

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="robots" content="noindex" />
+        <meta name="description" content="" />
+        <meta name="keywords" content=""/>
+        <meta name="viewport"
+              content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes"/>
+        <title>REST Api Documentation</title>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;600&family=Roboto+Mono&display=swap"
+              rel="stylesheet"/>
+        <script type="text/javascript" src="{{ url_for('static', filename='apidoc/js/rapidoc-min.js') }}"></script>
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='apidoc/css/styles.css') }}"/>
+    </head>
+    <body>
+        <rapi-doc
+        id="thedoc"
+        spec-url="{{ url_for('static', filename='apidoc/yaml/openapi.yaml') }}"
+        layout="row"
+        show-logo="false"
+        show-header="true"
+        show-info="true"
+        sever-url="/"
+        persist-auth="true"
+        allow-spec-file-load="false"
+        allow-spec-url-load="false"
+        render-style="read"
+        theme="light"
+        regular-font="Open Sans"
+        mono-font="Roboto Mono"
+        show-header="false"
+        render-style="view"
+        header-color="#1ca72c"
+        primary-color="#1ca72c"
+        sort-endpoints-by="summary"
+        >
+        <!--
+      bg-color="#F1F3F4"
+      text-color="#2D3748"
+      nav-bg-color="#0367BD"
+      header-color="#0367BD"
+      primary-color="#CFE9FF"
+       -->
+        <img slot="logo"
+             width="35"
+             height="35"
+             src="{{ url_for('static', filename='apidoc/img/logo-white.png')}}"
+             alt="Morfi"/>
+        <div slot="header">
+            <button onclick="changeTheme('light');">Light</button>
+            <button onclick="changeTheme('dark');">Dark</button>
+            <button onclick="changeRenderStyle();">{}</button>
+        </div>
+        </rapi-doc>
+        <script type="text/javascript" src="{{ url_for('static', filename='apidoc/js/scripts.js') }}"></script>
+    </body>
+</html>

@@ -1,0 +1,161 @@
+openapi: "3.1.0"
+
+info:
+  title: Morfi Core API
+  version: 1.0.0
+
+  description: >
+    # Introduction
+
+    This documentation was written following OpenAPI specification descripted [here](https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.0.md).
+    It was further **extended** by [ReDoc](https://github.com/Redocly/redoc) Team.
+
+components:
+  schemas:
+    BaseGet:
+      $ref: 'resources/schemas.yml#/components/schemas/BaseGet'
+    AccessToken:
+      $ref: 'resources/entities.yml#/components/schemas/AccessToken'
+    Registration:
+      $ref: 'resources/entities.yml#/components/schemas/Registration'
+
+
+paths:
+  /auth/registrations:
+    post:
+      summary: 01. Registration
+      description: Creates a new user in the system. The user will remain inactive until an activation post was submitted.
+      tags:
+        - Auth
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/BaseGet'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#components/schemas/Registration'
+        400:
+          description: BAD REQUEST
+        500:
+          $ref: resources/responses.yaml#InternalServerError
+
+  /auth/activations:
+    post:
+      summary: 02. Activation
+      description: Activates a user using the recived activation code.
+      tags:
+        - Auth
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - code
+              properties:
+                email:
+                  type: string
+                code:
+                  type: string
+
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/BaseGet'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#components/schemas/Registration'
+        400:
+          description: BAD REQUEST
+        500:
+          $ref: resources/responses.yaml#InternalServerError
+
+  /auth/tokens:
+
+    post:
+      summary: 04. Login
+      description: Creates an access token for a given user.
+      tags:
+        - Auth
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/BaseGet'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#components/schemas/AccessToken'
+        500:
+          $ref: resources/responses.yaml#InternalServerError
+
+    put:
+      summary: 05.  Refresh
+      description: Refreshes an access token using the stored refresh_token value.
+      tags:
+        - Auth
+
+      responses:
+        201:
+          description: CREATED
+        500:
+          $ref: resources/responses.yaml#InternalServerError
+
+    delete:
+      summary: 06. Logout
+      description: Deletes an access token
+      tags:
+        - Auth
+
+      responses:
+        204:
+          description: NO CONTENT
+        500:
+          $ref: resources/responses.yaml#InternalServerErro
+
+  /auth/passwords:
+
+    delete:
+      summary: 07. Reset
+      description: Initiates password reseting process
+      tags:
+        - Auth
+
+      responses:
+        204:
+          description: NO CONTENT
+        500:
+            $ref: resources/responses.yaml#InternalServerErro

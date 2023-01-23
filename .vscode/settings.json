@@ -1,0 +1,26 @@
+{
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "black",
+    "python.formatting.blackArgs": ["--line-length=120"],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "flake8",
+    "python.linting.flake8Args": [
+        "--max-line-length=120",
+        "--ignore=E402,F841,F401,E302,E305",
+    ],
+    "python.terminal.activateEnvironment": true,
+    "[python]": {
+        "editor.wordBasedSuggestions": false,
+        "editor.formatOnSave": true,
+        "editor.rulers": [120],
+    },
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#1ca72c",
+        "titleBar.activeForeground": "#000000",
+        "editorRuler.foreground": "#0b4412"
+    },
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+    }
+}
