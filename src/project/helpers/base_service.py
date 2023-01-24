@@ -22,6 +22,10 @@ class BaseService:
         return cls.repository.get_model_name(payload)
 
     @classmethod
+    def get_model(cls) -> object:
+        return cls.repository.get_model()
+
+    @classmethod
     def get_entity_name(cls) -> str:
         return cls.repository.get_model_name().replace("Model", "")
 

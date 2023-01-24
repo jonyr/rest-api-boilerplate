@@ -1,5 +1,6 @@
 import hashlib
 import random
+import re
 
 from flask import current_app, request
 from itsdangerous import URLSafeTimedSerializer
@@ -80,3 +81,38 @@ def md5_hash(text: str):
         md5 hashed string
     """
     return hashlib.md5(text.encode()).hexdigest()
+
+
+def get_ip_address(localhost: str = "54.232.165.254"):
+    """
+    Gets the real ip address.
+
+    > Se more details [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For)
+    """
+    if "X-Forwarded-For" in request.headers:
+        proxy_data = request.headers["X-Forwarded-For"]
+        ip_list = proxy_data.split(",")
+        return ip_list[0]  # first address in list is User IP
+    else:
+        if request.remote_addr == "127.0.0.1":
+            return localhost
+        return request.remote_addr  # For local development
+
+
+def is_ip_private(ipv4: str):
+    """
+    Verifies if it is a private ip.
+
+    > See more details [here](https://en.wikipedia.org/wiki/Private_network)
+    """
+    priv_lo = re.compile(r"^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+    priv_24 = re.compile(r"^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+    priv_20 = re.compile(r"^192\.168\.\d{1,3}.\d{1,3}$")
+    priv_16 = re.compile(r"^172.(1[6-9]|2[0-9]|3[0-1]).[0-9]{1,3}.[0-9]{1,3}$")
+
+    res = priv_lo.match(ipv4) or priv_24.match(ipv4) or priv_20.match(ipv4) or priv_16.match(ipv4)
+
+    if res:
+        return True
+
+    return False

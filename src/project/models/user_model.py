@@ -1,10 +1,13 @@
 from datetime import datetime
+import pytz
 
 from sqlalchemy import and_
+from sqlalchemy.orm.attributes import flag_modified
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from src.project.app import db
-from src.project.helpers import random_num, verify_token
+from src.project.exceptions import CustomException
+from src.project.helpers import random_num, verify_token, get_ip_address
 
 
 class User(db.Model):
@@ -63,7 +66,7 @@ class User(db.Model):
         :type email: str
         :return: User instance
         """
-        return cls.query.filter(and_(cls.email == email), cls.is_deleted.is_(False)).first()
+        return cls.query.filter(and_(cls.email == email.lower()), cls.is_deleted.is_(False)).first()
 
     @classmethod
     def find_by_id(cls, user_id: int):
@@ -118,10 +121,50 @@ class User(db.Model):
         """
         Checks if the activation code has expired.
         """
-        now = datetime.utcnow()
+        now = datetime.now(tz=pytz.UTC)
         seconds = (now - self.updated_at).total_seconds()
 
         return seconds > 60 * 15
+
+    def clean_activation_code(self):
+        self.activation_code = None
+        self.updated_at = datetime.utcnow()
+
+    def validate_activation_code(self, code):
+
+        if self.activation_code != str(code):
+            raise CustomException("Invalid code", "InvalidActivationCodeError")
+
+        if self.activation_code_expired():
+            raise CustomException("Activation code has expired", "ExpiredActivationCodeError")
+
+        self.clean_activation_code()
+        self.enable()
+
+        return True
+
+    def update_activity_tracking(self, ip_address=None):
+        """
+        Update various fields on the user that's related to meta data on their
+        account, such as the sign in count and ip address, etc..
+
+        :param ip_address: IP address
+        :type ip_address: str
+        :return: SQLAlchemy commit results
+        """
+        self.sign_in_count += 1
+        self.last_sign_in_at = self.current_sign_in_at
+        self.last_sign_in_ip = self.current_sign_in_ip
+
+        self.current_sign_in_at = datetime.utcnow()
+        self.current_sign_in_ip = ip_address or get_ip_address()
+
+        return self.save()
+
+    def reset_activation_code(self):
+        self.activation_code = random_num(6)
+        self.before_put()
+        return self.save()
 
     def enable(self):
         self.is_active = True
@@ -155,6 +198,14 @@ class User(db.Model):
 
     def before_delete(self):
         self.deleted_at = datetime.datetime.utcnow()
+
+    def save(self):
+        db.session.add(self)
+
+        if self.extra_attributes:
+            flag_modified(self, "extra_attributes")
+
+        db.session.commit()
 
     @classmethod
     def mappings(cls):
