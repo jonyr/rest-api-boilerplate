@@ -2,7 +2,7 @@ from flask import request
 from src.project.helpers.base_service import BaseService
 from src.project.repositories import AuthRepository
 from src.project.exceptions import CustomException
-from src.project.extensions import schema, response
+from src.project.extensions import schema, response, event
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
 
 
@@ -21,12 +21,14 @@ class AuthService(BaseService):
         if cls.exists(payload.get("email", "missing").lower()):
             raise CustomException("A resource with the email already exist")
 
-        obj = cls.deserialize_using(payload, "RegistrationSchema", unknown="exclude")
+        user = cls.deserialize_using(payload, "RegistrationSchema", unknown="exclude")
 
         if commit:
             cls.commit()
 
-        return obj
+        event.post_event("user_registered", user)
+
+        return user
 
     @classmethod
     def activate_registration(cls, payload: dict = None):
@@ -55,6 +57,8 @@ class AuthService(BaseService):
         credentials = schema.load(payload, name="Login")
 
         user = cls.get_model().find_by_email(credentials["email"])
+
+        event.post_event("user_login", user)
 
         # invalid credentials
         if not user or not user.authenticated(password=credentials["password"]):
