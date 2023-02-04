@@ -15,7 +15,7 @@ class ExceptionHandler(object):
             self.init_app(app)
 
     def init_app(self, app):
-        handler = logging.handlers.SysLogHandler(address=("logs3.papertrailapp.com", 32030))
+        handler = logging.handlers.SysLogHandler(address=(app.config.get("SYSLOG_HOST"), app.config.get("SYSLOG_PORT")))
         formatter = logging.Formatter(
             "[%(asctime)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)", datefmt="%Y-%m-%d %H:%M:%S"
         )
