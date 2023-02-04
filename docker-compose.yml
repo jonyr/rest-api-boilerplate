@@ -1,0 +1,45 @@
+version: "3.4"
+
+services:
+  hestia-api:
+    container_name: rest-api
+    image: rest-api:latest
+    restart: unless-stopped
+    ports:
+      - 8083:5000
+    volumes:
+      - ./logs:/var/log/gunicorn:rw
+      - ./instance:/home/app/instance
+    command: api
+    healthcheck:
+      test: curl --fail localhost:5000/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 15s
+      timeout: 3s
+
+  worker:
+    container_name: rest-worker
+    image: rest-api:latest
+    restart: unless-stopped
+    volumes:
+      - ./instance:/home/app/instance
+    command: celery -A wsgi.ext_celery worker -B -l warning
+
+  beat:
+    container_name: rest-beat
+    image: rest-api:latest
+    restart: unless-stopped
+    volumes:
+      - ./instance:/home/app/instance
+    command: celery -A wsgi.ext_celery beat -l warning
+
+  flower:
+    container_name: rest-flower
+    image: rest-api:latest
+    restart: unless-stopped
+    volumes:
+      - ./instance:/home/app/instance
+    ports:
+      - 5555:5555
+    command: celery -A wsgi.ext_celery flower --port=5555 --broker=redis://192.168.1.5:6379/0 -l warning
