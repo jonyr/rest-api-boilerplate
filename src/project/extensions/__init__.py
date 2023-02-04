@@ -14,6 +14,9 @@ from .flask_schema_manager import SchemaManager
 from .flask_validator_engine import ValidatorEngine
 from .flask_exception_handler import ExceptionHandler
 from .flask_response_manager import ResponseManager
+from .flask_event_manager import EventManager
+from .flask_aws_manager import AWSManager
+from .flask_logger import FlaskLoggger
 
 metadata = MetaData(
     naming_convention={
@@ -34,3 +37,6 @@ schema = SchemaManager()
 validator = ValidatorEngine()
 catcher = ExceptionHandler()
 response = ResponseManager()
+event = EventManager()
+aws = AWSManager()
+console = FlaskLoggger()

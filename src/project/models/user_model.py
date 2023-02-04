@@ -22,6 +22,7 @@ class User(db.Model):
     email = db.Column(db.String(150), nullable=False, unique=True, index=True)
     password = db.Column(db.String(128))
     activation_code = db.Column(db.String(10))
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
 
     # Activity Tracking
     sign_in_count = db.Column(db.Integer, nullable=False, default=0)
