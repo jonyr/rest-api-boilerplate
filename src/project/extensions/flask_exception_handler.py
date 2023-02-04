@@ -1,6 +1,6 @@
 import logging
+import logging.handlers
 import traceback
-from logging import StreamHandler
 
 from werkzeug.exceptions import HTTPException
 
@@ -15,44 +15,55 @@ class ExceptionHandler(object):
             self.init_app(app)
 
     def init_app(self, app):
-        handler = StreamHandler()
-        handler.setFormatter(logging.Formatter("%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+        handler = logging.handlers.SysLogHandler(address=("logs3.papertrailapp.com", 32030))
+        formatter = logging.Formatter(
+            "[%(asctime)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)", datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        handler.setFormatter(formatter)
 
-        self.logger = logging.getLogger()
+        self.logger = logging.getLogger("RestAPI")
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.ERROR)
 
-        app.register_error_handler(
-            HTTPException,
-            self.handle_custom_exceptions,
-        )
-
-        app.register_error_handler(
-            Exception,
-            self.try_catch_all,
-        )
+        app.register_error_handler(HTTPException, self.handle_custom_exceptions)
+        app.register_error_handler(Exception, self.try_catch_all)
 
         app.extensions = getattr(app, "extensions", {})
         app.extensions[EXTENSION_NAME] = self
 
     def handle_custom_exceptions(self, error):
+        """
+        This function handles custom http exceptions
 
-        status_code = error.status_code if hasattr(error, "status_code") else 400
+        Args:
+            error (HTTPException): Custom HttpException
+
+        Returns:
+            json: response
+        """
+
+        if isinstance(error.code, int):
+            code = error.__class__.__name__
+            status_code = error.code
+
+        if isinstance(error.code, str):
+            code = error.code
+            status_code = error.status_code if hasattr(error, "status_code") else 400
 
         response = {
-            "code": error.code if hasattr(error, "code") else "UnknownError",
-            "message": error.message,
+            "code": code,
+            "description": error.description if hasattr(error, "description") else "Unknown error",
             "fields": error.fields if hasattr(error, "fields") else None,
         }
 
         return {
-            "data": None,
             "error": response,
+            "data": None,
             "warning": None,
         }, status_code
 
     def try_catch_all(self, error):
-        response = {"code": error.__class__.__name__, "message": str(error)}
+        response = {"code": error.__class__.__name__, "description": str(error)}
         self.logger.error(self.parse_error(error))
         return {"data": None, "error": response, "warning": None}, 500
 
