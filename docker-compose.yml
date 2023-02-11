@@ -1,45 +1,88 @@
-version: "3.4"
-
+version: '3'
 services:
-  hestia-api:
-    container_name: rest-api
-    image: rest-api:latest
+  flask-api:
+    container_name: arz-api
+    image: arz-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - 8083:5000
+      - ${FLASK_API_PORT:-8000}:8000
     volumes:
       - ./logs:/var/log/gunicorn:rw
       - ./instance:/home/app/instance
     command: api
     healthcheck:
       test: curl --fail localhost:5000/health || exit 1
-      interval: 60s
+      interval: 300s
       retries: 5
       start_period: 15s
       timeout: 3s
 
-  worker:
-    container_name: rest-worker
-    image: rest-api:latest
+  celery-worker:
+    container_name: arz-worker
+    image: arz-backend:latest
     restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./instance:/home/app/instance
-    command: celery -A wsgi.ext_celery worker -B -l warning
-
-  beat:
-    container_name: rest-beat
-    image: rest-api:latest
+    command: celery -A wsgi:celery worker -B -l debug
+    depends_on:
+      - redis
+  celery-beat:
+    container_name: arz-beat
+    image: arz-backend:latest
     restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./instance:/home/app/instance
-    command: celery -A wsgi.ext_celery beat -l warning
-
+    command: celery -A wsgi:celery beat -l debug
+    depends_on:
+      - redis
   flower:
-    container_name: rest-flower
-    image: rest-api:latest
+    container_name: arz-flower
+    image: arz-backend:latest
     restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./instance:/home/app/instance
+    env_file:
+      - ./instance/.env
     ports:
-      - 5555:5555
-    command: celery -A wsgi.ext_celery flower --port=5555 --broker=redis://192.168.1.5:6379/0 -l warning
+      - ${FLOWER_PORT:-5555}:5555
+    command: celery -A wsgi:celery flower --port=5555 -l debug
+    depends_on:
+      - redis
+  db:
+    container_name: arz-db
+    image: postgres:14.1-alpine3.14
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    user: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data
+      - ${POSTGRES_BACKUPS}:/var/lib/postgresql/backups
+
+  redis:
+    container_name: arz-redis
+    image: redis:6.2.6-bullseye
+    restart: unless-stopped
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    volumes:
+      - ${REDIS_DATA}:/data
+    command: [ "sh", "-c", "if [ $ENV = development ]; then redis-server; else exit 0; fi" ]

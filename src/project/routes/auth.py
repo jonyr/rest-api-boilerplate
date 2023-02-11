@@ -56,6 +56,10 @@ def delete_token():
 
 
 @auth_bp.delete("/auth/passwords")
+@validator(
+    "json",
+    {"email": ["required", "max:150"]},
+)
 def delete_password():
     return None, 204
 

@@ -46,6 +46,21 @@ class AuthService(BaseService):
         return {}, 201
 
     @classmethod
+    def reset_password(cls, payload: dict = None):
+        payload = payload or request.get_json()
+
+        user = cls.get_model().find_by_email(payload.get("email", "missing").lower())
+
+        if not user:
+            raise CustomException("Resource not found", "ResourceNotFound", 404)
+
+        user.validate_activation_code(payload.get("code", ""))
+
+        user.save()
+
+        return {}, 201
+
+    @classmethod
     def exists(cls, email: str):
         return cls.repository.exists([("email", "eq", email, "default")])
 

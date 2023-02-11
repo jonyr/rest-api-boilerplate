@@ -23,9 +23,7 @@ class BaseRepository:
         polymorphic_ids = {}
         for subclass in subclasses:
             if "polymorphic_identity" in subclass.__mapper_args__:
-                polymorphic_ids[
-                    subclass.__mapper_args__.get("polymorphic_identity")
-                ] = subclass.__name__
+                polymorphic_ids[subclass.__mapper_args__.get("polymorphic_identity")] = subclass.__name__
         return polymorphic_ids
 
     @classmethod
@@ -63,8 +61,8 @@ class BaseRepository:
     @classmethod
     def filter(
         cls,
-        query: "CustomBaseQuery" = None,
-        model_class: "Model Class" = None,
+        query=None,
+        model_class=None,
         conditions: list = None,
         **kwargs,
     ):
@@ -105,16 +103,12 @@ class BaseRepository:
             if source == "args":
                 if request_args.get(value) is not None:
                     if operator == "is":
-                        filters.append(
-                            (key, operator, cls.fuzzyboolean(request_args.get(value)))
-                        )
+                        filters.append((key, operator, cls.fuzzyboolean(request_args.get(value))))
                     else:
                         filters.append((key, operator, request_args.get(value)))
             elif source == "kwargs":
                 if kwargs.get(key) is not None:
-                    filters.append(
-                        (key.replace("__", "."), operator, kwargs.get(value))
-                    )
+                    filters.append((key.replace("__", "."), operator, kwargs.get(value)))
             else:
                 filters.append((key, operator, value))
 
@@ -144,9 +138,7 @@ class BaseRepository:
                         % operator
                     )
                 except IndexError:
-                    raise Exception(
-                        "Invalid filter operator(): %s" % operator
-                    ) from IndexError
+                    raise Exception("Invalid filter operator(): %s" % operator) from IndexError
 
                 if value == "null":
                     value = None
@@ -239,10 +231,7 @@ class BaseRepository:
         # Allow custom default order if not included already by the user
         if custom_force is not None:
             tmp_custom_force = custom_force.split(",")
-            if (
-                "{0},desc".format(tmp_custom_force) not in order
-                and "{0},asc".format(tmp_custom_force) not in order
-            ):
+            if "{0},desc".format(tmp_custom_force) not in order and "{0},asc".format(tmp_custom_force) not in order:
                 order.append(custom_force)
 
         for order_item in order:
@@ -255,9 +244,12 @@ class BaseRepository:
         return ordering
 
     @classmethod
-    def order(cls, query: "BaseQuery", **kwargs) -> "BaseQuery":
+    def order(cls, query, **kwargs):
 
         try:
+            # flat=False creates a list with all the values for example
+            # ?order=id,asc&order=updated_at,desc results in
+            # order = ['id,asc', 'updated_at,desc']
             _order_by = request.args.to_dict(flat=False)
         except Exception:
             _order_by = {}
@@ -272,13 +264,11 @@ class BaseRepository:
             else:
                 order_by.append(order_in_kwargs)
 
-        ordering = cls.order_generation(
-            order_by, cls.get_model().mappings(), cls.get_model().default_order()
-        )
+        ordering = cls.order_generation(order_by, cls.get_model().mappings(), cls.get_model().default_order())
         return query if ordering is None else query.order_by(*ordering)
 
     @staticmethod
-    def paginate(query: "BaseQuery", **kwargs) -> Tuple:
+    def paginate(query, **kwargs) -> Tuple:
 
         pagination = None
         result = query

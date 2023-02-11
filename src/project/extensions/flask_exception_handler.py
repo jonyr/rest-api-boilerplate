@@ -17,11 +17,11 @@ class ExceptionHandler(object):
     def init_app(self, app):
         handler = logging.handlers.SysLogHandler(address=(app.config.get("SYSLOG_HOST"), app.config.get("SYSLOG_PORT")))
         formatter = logging.Formatter(
-            "[%(asctime)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)", datefmt="%Y-%m-%d %H:%M:%S"
+            "[%(name)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)", datefmt="%Y-%m-%d %H:%M:%S"
         )
         handler.setFormatter(formatter)
 
-        self.logger = logging.getLogger("RestAPI")
+        self.logger = logging.getLogger("Backend")
         self.logger.addHandler(handler)
         self.logger.setLevel(logging.ERROR)
 

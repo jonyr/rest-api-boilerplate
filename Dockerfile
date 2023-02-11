@@ -33,4 +33,4 @@ COPY --chown=python:python . .
 
 ENTRYPOINT ["./deployment/docker/entrypoint.sh"]
 
-EXPOSE 5000
+EXPOSE 8000
