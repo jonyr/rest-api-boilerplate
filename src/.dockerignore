@@ -1,0 +1,16 @@
+.vscode/
+services/
+.editorconfig
+.gitattributes
+.gitignore
+.git
+.python-version
+LICENSE
+manager.sh
+README.md
+venv/
+__pycache__/
+.DS_Store
+*.pyc
+*.pyo
+instance
