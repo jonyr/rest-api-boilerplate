@@ -407,8 +407,7 @@ class Validators:
 class ValidationError(HTTPException):
     def __init__(self, fields=None):
         super().__init__()
-
         self.code = "ValidationError"
-        self.message = "Bad request"
+        self.description = "Bad request"
         self.status_code = 400
         self.fields = fields

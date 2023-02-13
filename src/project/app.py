@@ -11,7 +11,6 @@ from src.project.extensions import (
     jwt,
     schema,
     validator,
-    catcher,
     response,
     event,
     aws,
@@ -76,7 +75,6 @@ def register_extensions(app):
     jwt.init_app(app)
     schema.init_app(app)
     validator.init_app(app)
-    catcher.init_app(app)
     response.init_app(app)
     event.init_app(app)
     aws.init_app(app)
