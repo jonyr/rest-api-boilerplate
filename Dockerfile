@@ -1,7 +1,5 @@
 FROM python:3.10-slim-bullseye
 
-FROM python:3.10-slim-bullseye
-
 ARG APP_DIR="/app"
 
 RUN apt-get update \

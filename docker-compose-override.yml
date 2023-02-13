@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  flask-api:
+    depends_on:
+      - redis
+      - db
+
+  celery-worker:
+    depends_on:
+      - redis
+
+  celery-beat:
+    depends_on:
+      - redis
+
+  flower:
+    depends_on:
+      - redis
+
+  db:
+    container_name: arz-db
+    image: postgres:14.1-alpine3.14
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data
+      - ${POSTGRES_BACKUPS}:/var/lib/postgresql/backups
+
+  redis:
+    container_name: arz-redis
+    image: redis:6.2.6-bullseye
+    restart: unless-stopped
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    volumes:
+      - ${REDIS_DATA}:/data
+    # Example of how to to run this service only if $ENV = development
+    # command: [ "sh", "-c", "if [ $ENV = development ]; then redis-server; else exit 0; fi" ]
