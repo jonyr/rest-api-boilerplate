@@ -10,6 +10,7 @@ class RegistrationSchema(ActiveSchema):
         model = User
 
         fields = (
+            "name",
             "email",
             "password",
         )

@@ -11,6 +11,7 @@ auth_bp = Blueprint("auth", __name__)
 @validator(
     "json",
     {
+        "name": ["required", "min:2", "max:150"],
         "email": ["required", "max:150"],
         "password": ["required", "min:8", "max:128"],
     },
