@@ -21,9 +21,9 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            "user": (Permission.READ | Permission.COMMENT, True),
-            "admin": (Permission.ADMINISTER, False),
             "root": (0xFF, False),
+            "admin": (Permission.ADMINISTER, False),
+            "user": (Permission.READ | Permission.COMMENT, True),
         }
 
         for name in roles:
@@ -33,3 +33,14 @@ class Role(db.Model):
             db.session.add(role)
 
         db.session.commit()
+
+    @classmethod
+    def get_default_role(cls):
+        """
+        Returns the default role entity.
+
+        :param email: Email
+        :type email: str
+        :return: User instance
+        """
+        return cls.query.filter(cls.default.is_(True)).first()

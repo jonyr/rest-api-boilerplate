@@ -3,11 +3,11 @@ from src.project.app import event
 
 
 def handle_user_register_event(user):
-    log_message(f"{user.name} has registered with email address {user.email}")
+    log_message(f"{user.first_name} has registered with email address {user.email}")
 
 
 def handle_user_login_event(user):
-    log_message(f"{user.name} has login")
+    log_message(f"{user.first_name} has login")
 
 
 def setup_log_event_handlers():

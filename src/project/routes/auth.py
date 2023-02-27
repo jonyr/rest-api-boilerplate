@@ -1,7 +1,8 @@
-from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import timedelta
+from flask import Blueprint, request, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jti
 
-from src.project.app import response, schema, validator
+from src.project.app import response, schema, validator, rediscache
 from src.project.services import AuthService
 
 auth_bp = Blueprint("auth", __name__)
@@ -11,20 +12,31 @@ auth_bp = Blueprint("auth", __name__)
 @validator(
     "json",
     {
-        "name": ["required", "min:2", "max:150"],
+        "first_name": ["required", "min:2", "max:150"],
         "email": ["required", "max:150"],
         "password": ["required", "min:8", "max:128"],
     },
 )
 def create_registration():
-    registration = AuthService.post()
+    """ """
+    user = AuthService.post()
 
     registration = schema.dump(
-        registration,
+        user,
         name="User",
+        only=(
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "created_at",
+            "updated_at",
+        ),
     )
 
-    return response.build(registration, 201)
+    meta = None if current_app.config.get("ENV") == "production" else {"code": user.activation_code}
+
+    return response.build(registration, meta)
 
 
 @auth_bp.post("/auth/activations")
@@ -36,44 +48,78 @@ def create_registration():
     },
 )
 def activate_registration():
-    activation = AuthService.activate_registration()
-    return request.json, 201
+    """
+    Activates a user.
+    """
+    user = AuthService.activate_registration()
+    return response.build(user, code=200)
 
 
 @auth_bp.post("/auth/tokens")
 def create_token():
+    """
+    Creates an access token for a give pair of credentials.
+    """
     tokens = AuthService.login()
     return response.build(tokens)
 
 
 @auth_bp.put("/auth/tokens")
+@jwt_required(refresh=True)
 def refresh_token():
-    return request.json, 200
+    """
+    Refreshes an access token.
+    """
+    tokens = AuthService.refresh()
+    return response.build(tokens)
 
 
 @auth_bp.delete("/auth/tokens")
+@jwt_required(verify_type=False)
 def delete_token():
-    return None, 204
+    """
+    Destroys access token.
+    """
+    AuthService.logout()
+    return response.build(None)
 
 
-@auth_bp.delete("/auth/passwords")
+@auth_bp.post("/auth/passwords/reset")
 @validator(
     "json",
     {"email": ["required", "max:150"]},
 )
-def delete_password():
-    return None, 204
+def request_password_clean():
+    """
+    Requests a password reset.
+    """
+    token = AuthService.request_password_reset()
+    meta = None if current_app.config.get("ENV") == "production" else {"token": token}
+    return response.build(None, meta)
 
 
 @auth_bp.post("/auth/passwords")
-def create_password():
-    return request.json, 204
+@validator(
+    "json",
+    {
+        "token": ["required"],
+        "password": ["required", "min:8", "max:128"],
+    },
+)
+def update_cleaned_password():
+    """
+    Updates a password.
+    """
+    AuthService.password_update()
+    return response.build(None)
 
 
 @auth_bp.get("/auth/me")
 @jwt_required()
 def get_my_info():
-
+    """
+    Gets information about me.
+    """
     identity = get_jwt_identity()
     user = AuthService.me(identity)
     return response.build(user)

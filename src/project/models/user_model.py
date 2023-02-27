@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from src.project.app import db
 from src.project.exceptions import CustomException
-from src.project.helpers import random_num, verify_token, get_ip_address
+from src.project.helpers import random_num, encode_object, decode_string, get_ip_address
 
 
 class User(db.Model):
@@ -18,7 +18,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, server_default=db.func.now())
     updated_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, server_default=db.func.now())
     deleted_at = db.Column(db.DateTime(timezone=True))
-    name = db.Column(db.String(150))
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
     email = db.Column(db.String(150), nullable=False, unique=True, index=True)
     password = db.Column(db.String(128))
     activation_code = db.Column(db.String(10))
@@ -80,21 +81,6 @@ class User(db.Model):
         """
         return cls.query.filter(cls.id == user_id).first()
 
-    @classmethod
-    def find_by_token(cls, token: str, expiration: int = 3600):
-        """
-        Obtains a user by looking up their email contained in a token.
-
-        :param token: Signed token.
-        :type token: str
-        :param expiration: Seconds until it expires, defaults to 1 hour
-        :type expiration: int
-        :return: User instance or None
-        """
-        email = verify_token(token, expiration)
-
-        return User.find_by_identity(email) if email else None
-
     def authenticated(self, with_password: bool = True, password: str = ""):
         """
         Ensure a user is authenticated, and optionally check their password.
@@ -125,7 +111,7 @@ class User(db.Model):
         now = datetime.now(tz=pytz.UTC)
         seconds = (now - self.updated_at).total_seconds()
 
-        return seconds > 60 * 15
+        return seconds > 60 * 60 * 24
 
     def clean_activation_code(self):
         self.activation_code = None
@@ -233,4 +219,7 @@ class User(db.Model):
         ]
 
     def __repr__(self):
-        return f"<User {self.name} [{self.id}]>"
+        return f"<User {self.first_name} [{self.id}]>"
+
+    def encode(self):
+        return encode_object({"id": self.id})

@@ -10,14 +10,16 @@ class RegistrationSchema(ActiveSchema):
         model = User
 
         fields = (
-            "name",
+            "first_name",
+            "last_name",
             "email",
             "password",
         )
 
     email = fields.Email(required=True, validate=validate.Length(max=150))
     password = fields.String(required=True, validate=validate.Length(min=8, max=128), load_only=True)
-    name = fields.String(allow_none=True, validate=validate.Length(max=150))
+    first_name = fields.String(allow_none=False, validate=validate.Length(max=50))
+    last_name = fields.String(allow_none=True, missing=None, validate=validate.Length(max=50))
 
 
 class UserSchema(ActiveSchema):
@@ -27,7 +29,8 @@ class UserSchema(ActiveSchema):
         fields = (
             "id",
             "email",
-            "name",
+            "first_name",
+            "last_name",
             "extra_attributes",
             "last_sign_in_at",
             "last_sign_in_ip",

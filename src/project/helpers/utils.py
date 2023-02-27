@@ -2,9 +2,12 @@ import hashlib
 import random
 import re
 
-from flask import current_app, request
-from itsdangerous import URLSafeTimedSerializer
 from celery import Celery
+from flask import current_app, request, url_for
+from itsdangerous import Signer, URLSafeTimedSerializer
+
+from itsdangerous.exc import BadSignature, BadTimeSignature
+from src.project.exceptions import CustomException
 
 
 def strtobool(val: str) -> int:
@@ -31,7 +34,7 @@ def skip_cache():
     return "skip_cache" in request.args
 
 
-def sign_token(data):
+def encode_object(data):
     """
     Signs and creates a token that can be used for things such as resetting
     a password or other tasks that involve a one off token.
@@ -42,28 +45,31 @@ def sign_token(data):
     Return:
         Serialized data
     """
-    serializer = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
+    serializer = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"), current_app.config.get("SECRET_KEY_SALT"))
 
     return serializer.dumps(data)
 
 
-def verify_token(token: str, expiration: int = 3600):
+def decode_string(data: str, expiration: int = 3600):
     """
-    Obtains a user from de-serializing a signed token.
+    Obtains an object from de-serializing a signed token.
 
     Args:
-        token: Signed token.
-        expiration: Seconds until it expires, defaults to 1 hour.
+        data (str): signed token
+        expiration (int, optional): Seconds until it expires, defaults to 1 hour.
+
+    Raises:
+        CustomException: TokenError
 
     Returns:
-        data or None.
+        _type_: _description_
     """
-    serializer = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
+    serializer = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"), current_app.config.get("SECRET_KEY_SALT"))
 
     try:
-        return serializer.loads(token, max_age=expiration)
-    except Exception:
-        return None
+        return serializer.loads(data, max_age=expiration)
+    except (BadSignature, BadTimeSignature) as error:
+        raise CustomException(f"Expired or modified token ({error.__class__.__name__})", "TokenError")
 
 
 def random_num(digits=8):
@@ -130,3 +136,47 @@ def make_celery(app):
 
     celery.Task = ContextTask
     return celery
+
+
+def sign_str(text: str) -> str:
+    """Attach a signature to a specific string
+    :param text: A string to be signed
+    :returns: A signed string.
+    """
+    return Signer(current_app.config.get("SECRET_KEY"), current_app.config.get("SECRET_KEY_SALT")).sign(text)
+
+
+def unsign_str(self, signed_text: str) -> str:
+    """
+    Validate a signed string.
+    :param signed_text: A signed string.
+    :exception: TokenError: When signature does not match
+    :returns: a string
+    """
+    try:
+        return Signer(current_app.config.get("SECRET_KEY"), current_app.config.get("SECRET_KEY_SALT")).unsign(
+            signed_text
+        )
+    except (BadSignature) as error:
+        raise CustomException(f"Signature does not match ({error.__class__.__name__})", "TokenError")
+
+
+def generate_url(endpoint: str, token: str) -> str:
+    return url_for(endpoint, token=token, _external=True)
+
+
+def get_default_email_template_params():
+    """
+    Gets default email templates parameters.
+
+    Returns:
+        dict: dictionary
+    """
+    return {
+        "APP_NAME": current_app.config.get("APP_NAME"),
+        "APP_URL": current_app.config.get("APP_URL"),
+        "APP_LOGO_URL": current_app.config.get("APP_LOGO_URL"),
+        "APP_BANNER_URL": current_app.config.get("APP_BANNER_URL"),
+        "PRIMARY_COLOR": current_app.config.get("APP_PRIMARY_COLOR"),
+        "FOOTER": current_app.config.get("APP_NAME"),
+    }

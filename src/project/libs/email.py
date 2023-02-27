@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 
 
 def send_email(name: str, address: str, subject: str, body: str):
+    print("==================================-")
     print("Sending email to {name} ({address})")
     print("==================================-")
     print(f"Subject: {subject}")

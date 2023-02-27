@@ -1,0 +1,33 @@
+<mjml>
+  <mj-body background-color="#cdcdcd">
+    <mj-section background-color="#ffffff">
+      <mj-column width="">
+        <mj-image align="right" alt="{{ APP_NAME }}" border="0px solid #b0b0b0" href="{{ APP_URL }}" padding="0px 25px 0px 50px" src="{{ APP_LOGO_URL }}" width="100px">
+
+        </mj-image>
+      </mj-column>
+    </mj-section>
+    <mj-section border-bottom="0px solid #b0b0b0" border-radius="0px 0px 0px 0px" padding="0px">
+      <mj-column background-color="#ffffff">
+        <mj-image alt="{{ APP_NAME }}" padding="0px" src="{{ APP_BANNER_URL }}">
+
+        </mj-image>
+        <mj-text data-name="heading" font-size="18px">
+          <h2>{{ TITLE }}</h2>
+        </mj-text>
+        <mj-text font-size="14px" padding="30px 25px 40px 25px">
+          <div><span><font face="Nunito" color="#212121" size="4">{{ BODY }}</font></span></div>
+        </mj-text>
+        <mj-button background-color="#ed5a3a" font-size="14px" font-weight="700" href="{{ CTA_LINK }}" text-transform="uppercase">
+          {{ CTA_TEXT }}
+        </mj-button>
+        <mj-spacer padding="50px 0px">
+
+        </mj-spacer>
+        <mj-text container-background-color="#000000" padding="10px 25px 10px 50px">
+          <div style="text-align: center;"><span style="caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); font-size: small;">{{ APP_NAME }}</span></div>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
