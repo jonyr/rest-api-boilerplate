@@ -1,5 +1,5 @@
 import googlemaps
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, current_app
 
 atlas_bp = Blueprint("atlas", __name__, template_folder="templates")
 
@@ -7,7 +7,7 @@ atlas_bp = Blueprint("atlas", __name__, template_folder="templates")
 @atlas_bp.get("/atlas/geocoder")
 def geocoder():
     address = request.args.get("address")
-    gmaps = googlemaps.Client(key="AIzaSyD4MgH003Spb_1GTTTgg-J3fFsYWUkhI-o")
+    gmaps = googlemaps.Client(key=current_app.config.get("GOOGLE_MAPS_API_KEY"))
     # Geocoding an address
     # geocode_result = gmaps.geocode(address)
 
