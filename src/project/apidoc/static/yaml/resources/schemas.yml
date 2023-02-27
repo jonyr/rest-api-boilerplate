@@ -5,6 +5,9 @@ components:
       properties:
         data:
           type: object
+        meta:
+          type: nullable
+          example: null
         error:
           type: nullable
           example: null

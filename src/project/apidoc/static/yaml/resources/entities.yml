@@ -1,14 +1,59 @@
 components:
   schemas:
+    Registration:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: john@doe.com
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-02-21T14:45:19+00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-02-21T14:45:19+00:00"
     AccessToken:
       type: object
       properties:
         access_token:
           type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.re253432fwdfewrcdasfs.gKrWUUMjKQekeCyxjPPN2DM0gFNMSjrTUIAwYpdyfwM"
         refresh_token:
           type: string
-    Registration:
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.re253432fwdfewrcdasfs.gKrWUUMjKQekeCyxjPPN2DM0gFNMSjrTUIAwYpdyfwM"
+    RefreshToken:
       type: object
       properties:
-        email:
+        access_token:
           type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.re253432fwdfewrcdasfs.gKrWUUMjKQekeCyxjPPN2DM0gFNMSjrTUIAwYpdyfwM"
+    CustomError:
+      type: object
+      properties:
+        data:
+          type: nullable
+          example: null
+        warning:
+          type: nullable
+          example: null
+        meta:
+          type: nullable
+          example: null
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            description:
+              type: string

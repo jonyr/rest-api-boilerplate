@@ -16,12 +16,26 @@ components:
       $ref: 'resources/schemas.yml#/components/schemas/BaseGet'
     AccessToken:
       $ref: 'resources/entities.yml#/components/schemas/AccessToken'
+    RefreshToken:
+      $ref: 'resources/entities.yml#/components/schemas/RefreshToken'
     Registration:
       $ref: 'resources/entities.yml#/components/schemas/Registration'
+    CustomError:
+      $ref: 'resources/entities.yml#/components/schemas/CustomError'
+
+
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
 
 
 paths:
   /auth/registrations:
+
+    # Auth 01. Registration
+
     post:
       summary: 01. Registration
       description: Creates a new user in the system. The user will remain inactive until an activation post was submitted.
@@ -36,13 +50,26 @@ paths:
               required:
                 - email
                 - password
+                - first_name
               properties:
                 email:
                   type: string
+                  example: john@doe.com
+                  maxLength: 150
                 password:
                   type: string
-                name:
+                  example: "1234ABCD##"
+                  maxLength: 128
+                  minLenght: 8
+                first_name:
                   type: string
+                  maxLength: 50
+                  example: John
+                last_name:
+                  type: string
+                  maxLength: 50
+                  example: Doe
+
 
       responses:
         201:
@@ -62,6 +89,9 @@ paths:
           $ref: resources/responses.yaml#InternalServerError
 
   /auth/activations:
+
+    # Auth 02. Activation
+
     post:
       summary: 02. Activation
       description: Activates a user using the recived activation code.
@@ -79,8 +109,12 @@ paths:
               properties:
                 email:
                   type: string
+                  example: john@doe.com
+                  maxLength: 150
                 code:
                   type: string
+                  maxLength: 10
+                  example: ABCDE12345
 
       responses:
         201:
@@ -96,13 +130,17 @@ paths:
                         $ref: '#components/schemas/Registration'
         400:
           description: BAD REQUEST
+        404:
+          description: NOT FOUND
         500:
           $ref: resources/responses.yaml#InternalServerError
 
   /auth/tokens:
 
+    # Auth 03. Login
+
     post:
-      summary: 04. Login
+      summary: 03. Login
       description: Creates an access token for a given user.
       tags:
         - Auth
@@ -118,11 +156,16 @@ paths:
               properties:
                 email:
                   type: string
+                  example: john@doe.com
+                  maxLength: 150
                 password:
                   type: string
+                  example: "1234ABCD##"
+                  maxLength: 128
+                  minLenght: 8
 
       responses:
-        200:
+        201:
           description: OK
           content:
             application/json:
@@ -133,40 +176,80 @@ paths:
                     properties:
                       data:
                         $ref: '#components/schemas/AccessToken'
+        400:
+          description: BAD REQUEST
+        401:
+          description: UNAUTHORIZED
         500:
           $ref: resources/responses.yaml#InternalServerError
 
+    # Auth 04. Refresh Access Token
+
     put:
-      summary: 05.  Refresh
+
+      summary: 04.  Refresh
       description: Refreshes an access token using the stored refresh_token value.
       tags:
         - Auth
+      security:
+        - BearerAuth: []
 
       responses:
         201:
-          description: CREATED
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#components/schemas/BaseGet'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#components/schemas/RefreshToken'
         500:
           $ref: resources/responses.yaml#InternalServerError
 
+    # Auth 05. Logout
+
     delete:
-      summary: 06. Logout
-      description: Deletes an access token
+      summary: 05. Logout
+      description: Deletes an access token and its refresh token
       tags:
         - Auth
+
+      security:
+        - BearerAuth: []
 
       responses:
         204:
           description: NO CONTENT
+        401:
+          description: UNAUTHORIZED
         500:
           $ref: resources/responses.yaml#InternalServerError
 
-  /auth/passwords:
+  /auth/passwords/reset:
 
-    delete:
-      summary: 07. Reset
+    # Auth 06. Reset
+
+    post:
+      summary: 06. Password reset
       description: Initiates password reseting process
       tags:
         - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  example: john@doe.com
+                  maxLength: 150
+                  minLenght: 8
 
       responses:
         204:
@@ -174,11 +257,33 @@ paths:
         500:
             $ref: resources/responses.yaml#InternalServerError
 
+  /auth/passwords:
+
+    # Auth 07. Password update
+
     post:
-      summary: 08. Password update
+      summary: 07. Password update
       description: Complete the password reset
       tags:
         - Auth
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  example: eyJpZCI6MX0.Y_vmsw.D9TLmDOsllVhZJcQHB1e4rMQr4M
+                password:
+                  type: string
+                  example: "1234ABCD##"
+                  maxLength: 128
+                  minLenght: 8
 
       responses:
         201:

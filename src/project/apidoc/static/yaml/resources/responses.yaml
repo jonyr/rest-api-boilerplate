@@ -11,16 +11,290 @@ InternalServerError:
           warning:
             type: nullable
             example: null
+          meta:
+            type: nullable
+            example: null
           error:
             type: object
             properties:
               code:
                 type: string
-              message:
+              description:
                 type: string
       example:
         data: null
         warning: null
+        meta: null
         error:
           code: InternalServerError
           description: Internal server error
+
+ResourceNotFountError:
+  description: Resource Not Found
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: InternalServerError
+          description: Internal server error
+
+AlreadyActive:
+  description: Missing Authorization Header
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: AlreadyActive
+          description: The account was already active
+
+InvalidCredentialsError:
+  description: Invalid credentials
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: InvalidCredentialsError
+          description: Invalid credentials
+
+ExpiredActivationCodeError:
+  description: Activation code has expired
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: ExpiredActivationCodeError
+          description: Activation code has expired
+
+InactiveAccountError:
+  description: Inactive account
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: InactiveAccountError
+          description: Inactive account
+
+ExpiredTokenError:
+  description: I can't let you do that
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: ExpiredTokenError
+          description: I can't let you do that
+
+InvalidTokenError:
+  description: Invalid Token Error
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: InvalidTokenError
+          description: Not enough segments
+
+MissingTokenError:
+  description: Missing Authorization Header
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: MissingTokenError
+          description: Missing Authorization Header
+
+RevokedTokenError:
+  description: The Token is revoked
+  content:
+    application/json:
+      schema:
+        properties:
+          data:
+            type: nullable
+            example: null
+          warning:
+            type: nullable
+            example: null
+          meta:
+            type: nullable
+            example: null
+          error:
+            type: object
+            properties:
+              code:
+                type: string
+              description:
+                type: string
+      example:
+        data: null
+        warning: null
+        meta: null
+        error:
+          code: RevokedTokenError
+          description: The Token is revoked
