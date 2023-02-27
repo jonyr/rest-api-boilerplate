@@ -13,6 +13,7 @@ You must create a this file
 `instance/config.py`
 
 ```python
+
 ENV = "development"
 SQLALCHEMY_DATABASE_URI = "postgresql://restapi:restapi@db:5432/restapi"
 SECRET_KEY = "PLEASE_REPLACE_THIS"
@@ -20,6 +21,24 @@ DISCORD_WEBHOOK_URL = "PLEASE_REPLACE_THIS"
 
 SYSLOG_HOST = "logs3.papertrailapp.com"
 SYSLOG_PORT = 32030
+
+REDIS_URL = "redis://redis:6379/0"
+
+CELERY_CONFIG = {
+    "broker_url": REDIS_URL,
+    "result_backend_url": REDIS_URL,
+    "accept_content": ["json"],
+    "task_serializer": "json",
+    "redis_max_connections": 5,
+}
+
+# RedisCache
+CACHE_REDIS_URL = REDIS_URL
+
+# FilesystemCache
+CACHE_DIR = "/tmp/cache/"
+
+
 
 ```
 ## Running with Docker the whole stack
@@ -53,7 +72,6 @@ FLASK_API_PORT=8000
 FLOWER_PORT=5555
 ```
 
-
 ### Start
 
 ```bash
@@ -64,3 +82,7 @@ FLOWER_PORT=5555
 ```bash
 ./manager.sh fullstop
 ```
+
+## Internationalization
+
+The project has a dependency with [Flask Babel](https://python-babel.github.io/flask-babel/)
