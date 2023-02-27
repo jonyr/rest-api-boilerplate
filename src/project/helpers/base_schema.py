@@ -17,19 +17,9 @@ class ActiveSchema(BaseSchema):
             "updated_at",
             "created_at",
             "deleted_at",
-            "created_at_tz",
-            "updated_at_tz",
         )
 
-    is_active = fields.Boolean(data_key="isActive")
-    created_at = fields.DateTime(
-        "%Y-%m-%dT%H:%M:%S+00:00", dump_only=True, data_key="createdAt"
-    )
-    updated_at = fields.DateTime(
-        "%Y-%m-%dT%H:%M:%S+00:00", dump_only=True, data_key="updatedAt"
-    )
-    deleted_at = fields.DateTime(
-        "%Y-%m-%dT%H:%M:%S+00:00", dump_only=True, data_key="deletedAt"
-    )
-    updated_at_tz = fields.String(dump_only=True, data_key="updatedAtTz")
-    created_at_tz = fields.String(dump_only=True, data_key="createdAtTz")
+    is_active = fields.Boolean()
+    created_at = fields.DateTime("%Y-%m-%dT%H:%M:%S+00:00", dump_only=True)
+    updated_at = fields.DateTime("%Y-%m-%dT%H:%M:%S+00:00", dump_only=True)
+    deleted_at = fields.DateTime("%Y-%m-%dT%H:%M:%S+00:00", dump_only=True)
