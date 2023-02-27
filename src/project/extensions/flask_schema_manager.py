@@ -1,20 +1,26 @@
-from copy import deepcopy
 import importlib
-from marshmallow.exceptions import ValidationError
+from copy import deepcopy
+from typing import Optional
+
+from flask import Flask
 from marshmallow import fields
+from marshmallow.exceptions import ValidationError
 
 EXTENSION_NAME = "flask-schema"
 
 
 class SchemaManager(object):
-    def __init__(self, app=None):
+    def __init__(
+        self,
+        app: Optional[Flask] = None,
+    ) -> None:
 
         self.errors = {}
 
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app: "Flask"):
+    def init_app(self, app: Flask) -> None:
         self.app = app
 
         app.extensions = getattr(app, "extensions", {})

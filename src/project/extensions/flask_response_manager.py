@@ -113,8 +113,8 @@ class ResponseManager(object):
         _response = {}
         _response["data"] = None
         _response["meta"] = None
-        _response["warnings"] = None
-        _response["errors"] = error
+        _response["warning"] = None
+        _response["error"] = error
         self.response = make_response(jsonify(_response))
         return self.response, code
 
