@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+              integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+              crossorigin="anonymous"/>
+        <style>
+            #search {
+                display: block;
+            }
+
+            #map {
+                margin-top: 5px;
+                border: 2px solid #cecece;
+                height: 500px;
+                width: 100%;
+                display: none;
+                padding: 5px;
+            }
+
+            #confirm-address {
+                display: none;
+            }
+
+            #confirm-actions {
+                display: none;
+            }
+
+            #alert-pin {
+                display: none;
+            }
+
+            #form-confirm{
+                display: none;
+            }
+        </style>
+    </head>
+    <body onload="initAutocomplete();">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-sm-8 offset-sm-2">
+                    <h2>Datos para el envío</h2>
+                    <form>
+                        <div class="form-group">
+                            <input id="search"
+                                   type="text"
+                                   class="form-control form-control-lg"
+                                   placeholder="Ingrese su dirección"/>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-sm-8 offset-sm-2">
+                    <div id="map"></div>
+                    <div id="confirm-actions" class="row">
+                        <div class="col-sm mt-3">
+                            <button type="button"
+                                    class="btn btn-danger btn-lg btn-block"
+                                    onclick="confirmAddress();toggleElement('confirm-actions');toggleElement('map');hide('search');toggleElement('form-confirm');">
+                                Confirmar
+                            </button>
+                        </div>
+                        <div class="col-sm mt-3">
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-lg btn-block"
+                                    onclick="toggleElement('confirm-actions');toggleElement('alert-pin');toggleElement('confirm-address');">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="alert-pin" class="alert alert-warning mt-3" role="alert">
+                        ¿El pin y la dirección no coinciden? <a onclick="toggleElement('confirm-actions');toggleElement('alert-pin');toggleElement('confirm-address');"
+    class="alert-link">ajustar</a>
+                    </div>
+                    <div id="confirm-address" class="row mt-3">
+                        <h3>¿Nos confirmas tu ubicación?</h3>
+                        <form class="form-inline">
+                            <div class="form-group mb-2">
+                                <input type="text"
+                                       readonly
+                                       class="form-control-plaintext form-control-lg"
+                                       id="address"
+                                       value="14 Nro 698"/>
+                            </div>
+                            <button type="submit"
+                                    class="btn btn-danger mb-2"
+                                    onclick="toggleElement('form-confirm');confirmAddress();">
+                                Confirmar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div id="form-confirm" class="col-sm-8 offset-sm-2">
+                    <form>
+                        <div class="form-group">
+                            <label for="ciudad">Dirección</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="address"
+                                   placeholder="Ingrese su ciudad"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="pisoDepto">Piso/Departamento</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="piso-depto"
+                                   placeholder="Ingrese su piso o departamento"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="ciudad">Ciudad</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="city"
+                                   placeholder="Ingrese su ciudad"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="otros">Otros</label>
+                            <input type="text"
+                                   class="form-control form-control-lg"
+                                   id="extra"
+                                   placeholder="Ingrese otros datos"/>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Confirmar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4MgH003Spb_1GTTTgg-J3fFsYWUkhI-o&libraries=places&callback=initAutocomplete"></script>
+        <script async src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script async src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script async src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            let map, marker;
+
+            payload: {
+                customer = {
+                    address: {},
+                    email: "",
+                    firstName: "",
+                    lastName: "",
+                    phone: "",
+                },
+                customerUUID: "",
+            };
+
+
+            const address = {
+                street_name: null,
+                street_number: null,
+                city: null,
+                province: null,
+                postal_code: null,
+                country: null,
+                lat: null,
+                lng: null,
+                formatted: null,
+                place_id: null,
+                address_1: null,
+                address_2: null,
+                extra: null,
+              };
+
+
+              function initAutocomplete() {
+
+                var input = document.getElementById("search");
+                var autocomplete = new google.maps.places.Autocomplete(input);
+                var autocompleteService = new google.maps.places.AutocompleteService();
+
+                autocomplete.addListener('input', function() {
+                    var request = {
+                      input: input.value,
+                      types: ['address'],
+                      componentRestrictions: {country: ["ar"]}
+                    };
+                    autocompleteService.getPlacePredictions(request, function(results, status) {
+                      if (status === google.maps.places.PlacesServiceStatus.OK) {
+                        autocomplete.setPredictions(results);
+                      }
+                    });
+                  });
+
+                autocomplete.setComponentRestrictions({
+                    country: ["ar"],
+                  });
+
+                autocomplete.addListener("place_changed", function() {
+                    var place = autocomplete.getPlace();
+                    console.log(place);
+                    parsePlaceObj(place);
+
+                    initMap(address.lat, address.lng);
+                    toggleElement('map');
+                    toggleElement('alert-pin');
+                    toggleElement('confirm-address');
+                });
+
+            }
+
+            function initMap(lat=0, lng=0){
+
+                const initialCoords = { lat: lat, lng: lng };
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 18,
+                    center: initialCoords
+                });
+
+                marker = new google.maps.Marker({
+                    position: initialCoords,
+                    map: map,
+                    draggable: true
+                });
+
+            }
+
+            function resetObjectProperties(obj) {
+                for (let prop in obj) {
+                  obj[prop] = null;
+                }
+              }
+
+            function toggleElement(elementId) {
+                var element = document.getElementById(elementId);
+                console.log(element.style.display);
+                if (element.style.display !== "block") {
+                  element.style.display = "block";
+                } else {
+                  element.style.display = "none";
+                }
+            }
+
+            function hide(elementId) {
+                var element = document.getElementById(elementId);
+                element.style.display = "none";
+            }
+
+            function confirmAddress() {
+                document.getElementById('city').value = address.city;
+                document.getElementById('address').value = address.street_number + ' ' + address.street_number;
+            }
+
+            function parsePlaceObj(place) {
+
+                for (const component of place.address_components) {
+
+                    const componentType = component.types[0];
+
+                    switch (componentType) {
+
+                        case "street_number": {
+                            address.street_number = component.long_name;
+                            break;
+                        }
+
+                        case "route": {
+                            address.street_name = component.short_name;
+                            break;
+                        }
+
+                        case "postal_code": {
+                            address.postal_code = component.long_name;
+                            break;
+                        }
+
+                        case "postal_code_suffix": {
+                            address.postal_code = `${address.postal_code}${component.long_name}`;
+                            break;
+                        }
+
+                        case "locality": {
+                            address.city = component.long_name;
+                            break;
+                        }
+
+                        case "administrative_area_level_1": {
+                            address.province = component.short_name;
+                            break;
+                        }
+
+                        case "country": {
+                            address.country = component.long_name;
+                            break;
+                        }
+                    }
+                }
+
+                address.place_id =  place.place_id;
+                address.formatted = place.formatted_address;
+                address.lat = place.geometry.location.lat();
+                address.lng = place.geometry.location.lng()
+            }
+
+        </script>
+    </body>
+</html>

@@ -3,9 +3,12 @@
 This is a backend boilerplate based on many project we did in the past.
 It is based on the following technologies:
 
-- Flask
-- SqlAlchemy
-
+- [Flask](https://flask.palletsprojects.com/en/2.2.x/)
+- [SqlAlchemy](https://www.sqlalchemy.org)
+- [Marshmallow](https://marshmallow.readthedocs.io/en/stable/)
+- [Celery](https://docs.celeryq.dev/en/stable/)
+- [JWT](https://flask-jwt-extended.readthedocs.io/en/stable/)
+- [CORS](https://flask-cors.corydolphin.com/en/latest/configuration.html)
 
 ## Instance configuration file
 
@@ -53,6 +56,8 @@ AWS_SECRET_ACCESS_KEY = "PLEASE_REPLACE_THIS"
 # https://console.cloud.google.com/apis/credentials/key/9c6a62f4-00ef-4a38-b3da-70935d76dd8a?hl=es&project=arzionsrl
 GOOGLE_MAPS_API_KEY = "PLEASE_REPLACE_THIS"
 
+# https://flask-cors.corydolphin.com/en/latest/configuration.html
+CORS = ["*"]
 
 ```
 ## Running with Docker the whole stack
@@ -100,3 +105,7 @@ FLOWER_PORT=5555
 ## Internationalization
 
 The project has a dependency with [Flask Babel](https://python-babel.github.io/flask-babel/)
+
+# Third Party Libraries
+
+Datetimes manipulation with [Pendulum](https://pendulum.eustace.io/docs/). See all the valid formatters [here](https://pendulum.eustace.io/docs/#formatter)

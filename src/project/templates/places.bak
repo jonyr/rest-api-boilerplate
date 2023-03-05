@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Autocompletar con Google Maps API</title>
+        <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4MgH003Spb_1GTTTgg-J3fFsYWUkhI-o&libraries=places&callback=initAutocomplete"></script>
+        <script>
+            let map, marker;
+
+            const address = {
+                street_name: null,
+                street_number: null,
+                city: null,
+                province: null,
+                postal_code: null,
+                country: null,
+                lat: null,
+                lng: null,
+                formatted: null,
+                place_id: null,
+                address_1: null,
+                address_2: null,
+                extra: null,
+              };
+
+            function initMap(){
+
+                const initialCoords = { lat: 0, lng: 0 };
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 18,
+                    center: initialCoords
+                });
+
+                marker = new google.maps.Marker({
+                    position: initialCoords,
+                    map: map,
+                    draggable: true
+                });
+
+                google.maps.event.addListener(marker, 'dragend', function(event) {
+                    address.lat = event.latLng.lat();
+                    address.lng = event.latLng.lng();
+                    console.log(`Latitude: ${event.latLng.lat()}, Longitude: ${event.latLng.lng()}`);
+                    document.getElementById('btn-marker').style.display = 'block';
+                    console.log(address);
+                });
+            }
+
+            function initAutocomplete() {
+
+                var input = document.getElementById("address");
+                var autocomplete = new google.maps.places.Autocomplete(input);
+
+                autocomplete.setComponentRestrictions({
+                    country: ["ar"],
+                  });
+
+                autocomplete.addListener("place_changed", function() {
+                    var place = autocomplete.getPlace();
+
+                    // Imprimimos todo el objeto
+                    // console.log(place);
+
+
+
+                    for (const component of place.address_components) {
+
+                        const componentType = component.types[0];
+
+                        switch (componentType) {
+
+                            case "street_number": {
+                                address.street_number = component.long_name;
+                                break;
+                            }
+
+                            case "route": {
+                                address.street_name = component.short_name;
+                                break;
+                            }
+
+                            case "postal_code": {
+                                address.postal_code = component.long_name;
+                                break;
+                            }
+
+                            case "postal_code_suffix": {
+                                address.postal_code = `${address.postal_code}${component.long_name}`;
+                                break;
+                            }
+
+                            case "locality": {
+                                address.city = component.long_name;
+                                break;
+                            }
+
+                            case "administrative_area_level_1": {
+                                address.province = component.short_name;
+                                break;
+                            }
+
+                            case "country": {
+                                address.country = component.long_name;
+                                break;
+                            }
+                        }
+                    }
+
+                address.place_id =  place.place_id;
+                address.formatted = place.formatted_address;
+                address.lat = place.geometry.location.lat();
+                address.lng = place.geometry.location.lng()
+
+                console.log(address);
+
+                const lat = place.geometry.location.lat();
+                const lng =  place.geometry.location.lng()
+
+                map.setCenter({ lat, lng });
+                marker.setPosition({ lat, lng });
+
+                document.getElementById('map').style.display = 'block';
+              });
+            }
+
+            function confirmMarker() {
+                document.getElementById('address').style.display = 'none';
+                document.getElementById('map').style.display = 'none';
+                document.getElementById('btn-marker').style.display = 'none';
+                document.getElementById('btn-marker-2').style.display = 'block';
+                const formElements = document.querySelectorAll(".form");
+                formElements.forEach(function(form) {
+                    form.style.display = "block";
+                });
+                document.getElementById('address1').value = `${address.street_name} ${address.street_number}`;
+                document.getElementById('city').value = address.city;
+            }
+
+            function confirmAddress() {
+                address.address_1 = document.getElementById('address1').value;
+                address.address_2 = document.getElementById('address2').value;
+                address.extra = document.getElementById('address_extra').value;
+
+                console.log(address);
+            }
+
+            const toggleBtn = document.querySelector("#toggle");
+            const element = document.querySelector("#element");
+
+            toggleBtn.addEventListener("click", function() {
+            if (element.classList.contains("hidden")) {
+                element.classList.remove("hidden");
+                element.classList.add("visible");
+            } else {
+                element.classList.remove("visible");
+                element.classList.add("hidden");
+            }
+            });
+
+        </script>
+        <style>
+            input {
+                all: unset;
+                border-radius: 5px;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20px;
+                padding: 5px;
+                margin-top: 5px;
+              }
+
+            html > body {
+                margin: 100px;
+            }
+            input {
+                width: 100%;
+                height: 40px;
+                border: 2px solid #cecece;
+
+            }
+
+            #map {
+                margin-top: 5px;
+                border: 2px solid #cecece;
+                height: 500px;
+                width: 100%;
+                display: block;
+                padding: 5px;
+
+            }
+
+            #btn-marker, #btn-marker-2 {
+                background-color: #ed5a3a;
+                color: #fff;
+                height: 40px;
+                width: 100%;
+                border: 2px solid #ed5a3a;
+                text-align: center;
+                font-weight: bold;
+                display: block;
+            }
+
+            div.form {
+                display: block;
+            }
+
+            div.form {
+                margin-top: 10px;
+            }
+
+            #element {
+                transition: opacity 0.5s ease-in-out;
+                opacity: 0;
+              }
+
+              .hidden {
+                display: none;
+              }
+
+              .visible {
+                display: block;
+                opacity: 1;
+              }
+
+        </style>
+    </head>
+    <body onload="initAutocomplete();initMap();">
+        <input id="address" type="text" placeholder="50 Nro 921, La Plata"/>
+        <div id="map"></div>
+        <input type="button"
+               id="btn-marker"
+               value="Confirmar"
+               onclick="confirmMarker();"/>
+        <div class="form">
+            <strong>DIRECCION</strong>
+            <input type="text" id="address1" class="address" />
+        </div>
+        <div class="form">
+            <strong>PISO/DEPARTAMENTO</strong>
+            <input type="text" id="address2" class="address" />
+        </div>
+        <div class="form">
+            <strong>INDICACIONES PARA LA ENTREGA</strong>
+            <input type="text" id="address_extra" class="address" />
+        </div>
+        <div class="form">
+            <strong>CIUDAD</strong>
+            <input type="text" id="city" class="address" />
+        </div>
+        <input type="button"
+               id="btn-marker-2"
+               value="Confirmar"
+               onclick="confirmAddress();"/>
+    </body>
+</html>
