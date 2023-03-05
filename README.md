@@ -15,14 +15,18 @@ You must create a this file
 ```python
 
 ENV = "development"
-SQLALCHEMY_DATABASE_URI = "postgresql://restapi:restapi@db:5432/restapi"
+
 SECRET_KEY = "PLEASE_REPLACE_THIS"
+SECRET_KEY = "PLEASE_REPLACE_THIS"
+
+SQLALCHEMY_DATABASE_URI = "postgresql://{user}:{password}@{host}:{port}/{dbnmame}"
+
 DISCORD_WEBHOOK_URL = "PLEASE_REPLACE_THIS"
 
 SYSLOG_HOST = "logs3.papertrailapp.com"
 SYSLOG_PORT = 32030
 
-REDIS_URL = "redis://redis:6379/0"
+REDIS_URL = "redis://{host}:{port}/{dbname}"
 
 CELERY_CONFIG = {
     "broker_url": REDIS_URL,
@@ -32,12 +36,22 @@ CELERY_CONFIG = {
     "redis_max_connections": 5,
 }
 
-# RedisCache
-CACHE_REDIS_URL = REDIS_URL
-
 # FilesystemCache
 CACHE_DIR = "/tmp/cache/"
 
+# RedisCache
+CACHE_REDIS_URL = REDIS_URL
+
+# MemcachedCache
+CACHE_MEMCACHED_SERVERS = ["{host}:{port}"]
+
+# AWS Account
+AWS_DEFAULT_REGION = "PLEASE_REPLACE_THIS"
+AWS_ACCESS_KEY_ID = "PLEASE_REPLACE_THIS"
+AWS_SECRET_ACCESS_KEY = "PLEASE_REPLACE_THIS"
+
+# https://console.cloud.google.com/apis/credentials/key/9c6a62f4-00ef-4a38-b3da-70935d76dd8a?hl=es&project=arzionsrl
+GOOGLE_MAPS_API_KEY = "PLEASE_REPLACE_THIS"
 
 
 ```
