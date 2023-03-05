@@ -45,3 +45,11 @@ services:
       - ${REDIS_DATA}:/data
     # Example of how to to run this service only if $ENV = development
     # command: [ "sh", "-c", "if [ $ENV = development ]; then redis-server; else exit 0; fi" ]
+
+  memcached:
+    container_name: arz-memcached
+    image: memcached:1.6-alpine
+    restart: unless-stopped
+    command: ["-m", "512"]  # 500 MB memoria
+    ports:
+      - 11211:11211

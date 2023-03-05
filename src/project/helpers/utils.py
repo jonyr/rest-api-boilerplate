@@ -29,7 +29,7 @@ def strtobool(val: str) -> int:
 
 def skip_cache():
     """
-    Returns True if skip_cache is in request args, else False.
+    Returns True if skip_cache is in Flask request object args, else False.
     """
     return "skip_cache" in request.args
 

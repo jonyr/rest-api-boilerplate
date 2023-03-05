@@ -20,6 +20,7 @@ from src.project.extensions import (
     schema,
     validator,
     i18n,
+    memcachedcache,
 )
 from src.project.helpers.utils import make_celery
 from src.project.helpers.babel import get_locale, get_timezone
@@ -102,6 +103,14 @@ def register_extensions(app):
         config={
             "CACHE_TYPE": "RedisCache",
             "CACHE_DEFAULT_TIMEOUT": 60 * 60 * 24 * 30,
+            "CACHE_KEY_PREFIX": "RESTAPI_",
+        },
+    )
+    memcachedcache.init_app(
+        app,
+        config={
+            "CACHE_TYPE": "MemcachedCache",
+            "CACHE_DEFAULT_TIMEOUT": 60 * 60 * 12,
             "CACHE_KEY_PREFIX": "RESTAPI_",
         },
     )

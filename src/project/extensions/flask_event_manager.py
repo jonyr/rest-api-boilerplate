@@ -1,7 +1,4 @@
-from flask import make_response, jsonify, request
-from flask_sqlalchemy import Pagination
-
-EXTENSION_NAME = "flask-event-manager"
+EXTENSION_NAME = "event-manager"
 
 
 class EventManager(object):
@@ -13,18 +10,9 @@ class EventManager(object):
             self.init_app(app)
 
     def init_app(self, app):
-        self.app = app
 
         app.extensions = getattr(app, "extensions", {})
         app.extensions[EXTENSION_NAME] = self
-
-        @app.teardown_appcontext
-        def teardown_response_service(response_or_exc):
-            self.reset()
-            return response_or_exc
-
-    def reset(self):
-        pass
 
     def subscribe(self, event_type: str, fn):
 
