@@ -1,5 +1,5 @@
+""" Flask App Factory """
 import os
-from typing import Any
 
 from flask import Flask, send_from_directory
 
@@ -28,7 +28,9 @@ from src.project.helpers.jwt import register_jwt_handlers
 
 
 def create_app() -> "Flask":
-
+    """
+    Creates a Flask app.
+    """
     app = Flask(__name__, instance_relative_config=True)
 
     # Default configuration values
@@ -38,7 +40,6 @@ def create_app() -> "Flask":
     app.config.from_pyfile("config.py", silent=True)
 
     with app.app_context():
-
         register_extensions(app)
 
         celery = make_celery(app)
@@ -62,15 +63,19 @@ def create_app() -> "Flask":
 
 
 def register_blueprints(app):
-
+    """
+    Registers app blueprints.
+    """
     from src.project.apidoc import apidoc_bp
-    from src.project.routes import atlas_bp, auth_bp, health_bp, toolbox_bp
+    from src.project.routes import atlas_bp, auth_bp, health_bp, toolbox_bp, admin_bp, api_bp
 
     app.register_blueprint(apidoc_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(health_bp)
     app.register_blueprint(atlas_bp)
     app.register_blueprint(toolbox_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(api_bp)
 
 
 def register_extensions(app):
@@ -117,9 +122,13 @@ def register_extensions(app):
 
 
 def register_event_handlers():
-    from src.project.services.discord_listener import setup_discord_event_handlers
-    from src.project.services.email_listener import setup_email_event_handlers
-    from src.project.services.log_listener import setup_log_event_handlers
+    """
+    Registers event handlers.
+    """
+
+    from src.project.services.discord_listener import setup_discord_event_handlers  # noqa: C0415
+    from src.project.services.email_listener import setup_email_event_handlers  # noqa: C0415
+    from src.project.services.log_listener import setup_log_event_handlers  # noqa: C0415
 
     setup_discord_event_handlers()
     setup_email_event_handlers()
@@ -127,6 +136,10 @@ def register_event_handlers():
 
 
 def shell_context(app):
+    """
+    Registers shell context objects.
+    """
+
     @app.shell_context_processor
     def shell():
         return {

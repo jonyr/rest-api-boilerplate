@@ -1,8 +1,18 @@
+# -*- coding: utf-8 -*-
+"""Exceptions module."""
 from werkzeug.exceptions import HTTPException
 
 
 class CustomException(HTTPException):
-    def __init__(self, description: str = "Bad request", code: str = "BadRequestError", status_code: int = 400):
+    """Custom exception class."""
+
+    def __init__(
+        self,
+        description: str = "Bad request",
+        code: str = "BadRequestError",
+        status_code: int = 400,
+    ):
+        """Initialize custom exception."""
         super().__init__()
 
         self.code = code

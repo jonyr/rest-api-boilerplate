@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Flask Response Manager."""
+
 import logging
 import logging.handlers
 import traceback
@@ -9,13 +12,12 @@ from werkzeug.exceptions import HTTPException
 EXTENSION_NAME = "flask-response-manager"
 
 
-class ResponseManager(object):
+class ResponseManager:
     """
     This class handles responses and exceptions for the framework.
     """
 
     def __init__(self, app=None):
-
         self.response = None
         self.status_code = None
         self.errors = None
@@ -24,14 +26,20 @@ class ResponseManager(object):
             self.init_app(app)
 
     def init_app(self, app):
+        """
+        This function initializes the app.
+        """
         self.app = app
         self.app.config["JSON_SORT_KEYS"] = True
 
         # TODO: parametizar mejor esto
-        handler = logging.handlers.SysLogHandler(address=(app.config.get("SYSLOG_HOST"), app.config.get("SYSLOG_PORT")))
+        handler = logging.handlers.SysLogHandler(
+            address=(app.config.get("SYSLOG_HOST"), app.config.get("SYSLOG_PORT")),
+        )
 
         formatter = logging.Formatter(
-            "[%(name)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)", datefmt="%Y-%m-%d %H:%M:%S"
+            "[%(name)s] [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
 
         handler.setFormatter(formatter)
@@ -82,6 +90,16 @@ class ResponseManager(object):
         return self.build_error(response, status_code)
 
     def try_catch_all(self, error):
+        """
+        This function handles all exceptions
+
+        Args:
+            error (Exception): Exception
+
+        Returns:
+            json: response
+        """
+
         response = {"code": error.__class__.__name__, "description": str(error)}
         self.logger.error(self.parse_error(error))
 
@@ -89,11 +107,33 @@ class ResponseManager(object):
 
     @staticmethod
     def parse_error(error) -> str:
+        """
+        This function parses the error to a string
+
+        Args:
+            error (Exception): Exception
+
+        Returns:
+            str: error
+        """
+
         traceback_list = traceback.extract_tb(error.__traceback__)
         filename, line_number, function_name, code = traceback_list[-1]
         return f"""Error on line {line_number} in file {filename}\n\nMethod: {function_name}\n{code}\n"""
 
     def build(self, data, meta: dict = None, code: int = None, pagination: Pagination = None):
+        """
+        This function builds the response
+
+        Args:
+            data (dict): data
+            meta (dict, optional): meta. Defaults to None.
+            code (int, optional): status code. Defaults to None.
+            pagination (Pagination, optional): pagination. Defaults to None.
+
+        Returns:
+            json: response
+        """
 
         _response = {}
 
@@ -110,6 +150,16 @@ class ResponseManager(object):
         return self.response, self.set_status_code(code)
 
     def build_error(self, error, code: int = 500):
+        """
+        This function builds the error response
+
+        Args:
+            error (dict): error
+            code (int, optional): status code. Defaults to 500.
+
+        Returns:
+            json: response
+        """
         _response = {}
         _response["data"] = None
         _response["meta"] = None
@@ -119,7 +169,15 @@ class ResponseManager(object):
         return self.response, code
 
     def set_status_code(self, code: int = None):
+        """
+        This function sets the status code
 
+        Args:
+            code (int, optional): status code. Defaults to None.
+
+        Returns:
+            int: status code
+        """
         http_status_codes = {
             "GET": 200,
             "POST": 201,
@@ -130,9 +188,17 @@ class ResponseManager(object):
         return code or http_status_codes.get(request.method, 200)
 
     def build_pagination(self, pagination):
+        """
+        This function builds the pagination
+
+        Args:
+            pagination (Pagination): pagination
+
+        Returns:
+            dict: pagination
+        """
 
         if isinstance(pagination, (Pagination,)):
-
             return {
                 "prev_page": pagination.prev_num if pagination.prev_num else False,
                 "next_page": pagination.next_num if pagination.next_num else False,
@@ -143,6 +209,10 @@ class ResponseManager(object):
             }
 
     def reset(self):
+        """
+        This function resets the response
+        """
+
         self.response = None
         self.status_code = None
         self.errors = None

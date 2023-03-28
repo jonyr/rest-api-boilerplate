@@ -1,17 +1,21 @@
+# -*- coding: utf-8 -*-
+"""Flask AWS Manager."""
 import boto3
 
 EXTENSION_NAME = "flask-aws-manager"
 
 
 class AWSManager(object):
-    def __init__(self, app=None):
+    """AWS Manager."""
 
+    def __init__(self, app=None):
         self.subscribers = dict()
 
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app):
+        """Initialize the app."""
         self.app = app
 
         self.region_name = self.app.config.get("AWS_DEFAULT_REGION")
@@ -27,10 +31,10 @@ class AWSManager(object):
             return response_or_exc
 
     def reset(self):
-        pass
+        """Reset the AWS Manager."""
 
     def get_client(self, client_name):
-
+        """Get AWS client."""
         return boto3.client(
             client_name,
             region_name=self.region_name,

@@ -1,19 +1,27 @@
+# -*- coding: utf-8 -*-
+"""Flask Logger extension."""
+
 import logging
 
 EXTENSION_NAME = "flask-logger"
 
 
 class FlaskLoggger(object):
-    def __init__(self, app=None):
+    """Flask Logger."""
 
+    def __init__(self, app=None):
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app):
+        """Initialize the app."""
         self.app = app
 
         handler = logging.StreamHandler()
-        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+        formatter = logging.Formatter(
+            "[%(asctime)s] [%(levelname)s] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
 
         handler.setFormatter(formatter)
 
@@ -30,7 +38,8 @@ class FlaskLoggger(object):
             return response_or_exc
 
     def reset(self):
-        pass
+        """Reset the Flask Logger."""
 
     def log(self, message: str):
+        """Log a message."""
         self.logger.error(message)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Extensions module
 Each extension is initialized when app is created.
