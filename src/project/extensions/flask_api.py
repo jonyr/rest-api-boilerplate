@@ -402,4 +402,7 @@ class FlaskApi:
         if request.method in ("POST", "PUT", "PATCH") and not request.is_json:
             return True
 
+        if not current_app.config.get("REQUEST_LOGGER", False):
+            return True
+
         return False
