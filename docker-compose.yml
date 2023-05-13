@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./instance:/home/app/instance
-    command: celery -A wsgi:celery worker -B -l debug
+    command: worker
   celery-beat:
     container_name: arz-beat
     image: arz-backend:latest
@@ -39,7 +39,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./instance:/home/app/instance
-    command: celery -A wsgi:celery beat -l debug
+    command: beat
 
   flower:
     container_name: arz-flower
@@ -54,5 +54,5 @@ services:
       - ./instance/.env
     ports:
       - ${FLOWER_PORT:-5555}:5555
-    command: celery -A wsgi:celery flower --port=5555 -l debug
+    command: flower
 
