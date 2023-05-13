@@ -21,5 +21,10 @@
         "**/__pycache__": true,
         "**/*.pyc": true,
         "venv": true,
-    }
+    },
+    "emmet.includeLanguages": {
+        "jinja-html": "html",
+        "javascript": "javascriptreact",
+        "typescript": "typescriptreact",
+    },
 }
