@@ -8,7 +8,7 @@ from logging.handlers import SysLogHandler
 from typing import Union
 from datetime import datetime
 
-from flask import Flask, jsonify, make_response, request, g, Response, current_app
+from flask import Flask, jsonify, make_response, request, g, current_app
 from flask_sqlalchemy.pagination import Pagination
 from werkzeug.exceptions import HTTPException
 
@@ -31,7 +31,7 @@ class Color:
 
 class FlaskApi:
     """
-    This class handles responses and exceptions for the framework.
+    This class handles responses, exceptions and logger for the framework.
     """
 
     def __init__(self, app: Flask = None):
@@ -53,10 +53,13 @@ class FlaskApi:
 
         @app.before_request
         def befor_request():
+            """This function handles the before request."""
             g.start = time.time()
 
         @app.after_request
         def after_request(response):
+            """This function handles the after request."""
+
             if self.should_skip_logging_response():
                 return response
 
@@ -65,9 +68,15 @@ class FlaskApi:
             status_code = response.status_code
             duration = round(time.time() - g.start, 2)
             request_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ip_address = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0]
+            ip_address = request.headers.get(
+                "X-Forwarded-For", request.remote_addr
+            ).split(",")[0]
             json_payload = request.get_json(silent=True)
-            error_response = f"ERROR  : {Color.RED}{response.json}{Color.RESET}" if status_code > 399 else ""
+            error_response = (
+                f"ERROR  : {Color.RED}{response.json}{Color.RESET}"
+                if status_code > 399
+                else ""
+            )
 
             request_color = Color.GREEN if status_code < 400 else Color.RED
 
@@ -116,7 +125,7 @@ class FlaskApi:
         syslog_log_level: Union[str, int],
     ):
         """
-        This function configures the logging
+        This function configures the logging for the app.
 
         Args:
             app (Flask): Flask app
@@ -130,7 +139,7 @@ class FlaskApi:
         # setup stream handler
         stream_handler = logging.StreamHandler()
         stream_handler_formatter = logging.Formatter(
-            "Stream [%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         stream_handler.setFormatter(stream_handler_formatter)
         stream_handler.setLevel(stream_log_level)
@@ -171,11 +180,12 @@ class FlaskApi:
         # werkzeug.exceptions.HTTPException 4XX
         if isinstance(error, HTTPException):
             response, status_code = self.parse_http_exception(error)
+            self.log(self.parse_exception_message(error), logging.ERROR)
             return self.error(response, status_code)
 
         # Exception 5XX
         response = self.parse_exception(error)
-        self.log(self.parse_error_exception_message(error), logging.ERROR)
+        self.log(self.parse_exception_message(error), logging.ERROR)
         return self.error(response)
 
     def parse_http_exception(self, error):
@@ -199,7 +209,9 @@ class FlaskApi:
 
         response = {
             "code": code,
-            "description": error.description if hasattr(error, "description") else "Unknown error",
+            "description": error.description
+            if hasattr(error, "description")
+            else "Unknown error",
             "fields": error.fields if hasattr(error, "fields") else None,
         }
 
@@ -224,7 +236,9 @@ class FlaskApi:
 
     # RESPONSE STUFF BELOW #
 
-    def response(self, data, meta: dict = None, code: int = None, pagination: Pagination = None):
+    def response(
+        self, data, meta: dict = None, code: int = None, pagination: Pagination = None
+    ):
         """
         This function builds the response
 
@@ -331,15 +345,17 @@ class FlaskApi:
 
         response = {
             "code": code,
-            "description": error.description if hasattr(error, "description") else "Unknown error",
+            "description": error.description
+            if hasattr(error, "description")
+            else "Unknown error",
             "fields": error.fields if hasattr(error, "fields") else None,
         }
 
         return self.error(response, status_code)
 
-    def parse_error_exception_message(self, error) -> str:
+    def parse_exception_message(self, error) -> str:
         """
-        This function parses the error to a string
+        This function parses the exception to a string
 
         Args:
             error (Exception): Exception

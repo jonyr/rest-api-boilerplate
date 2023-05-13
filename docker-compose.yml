@@ -30,6 +30,7 @@ services:
     volumes:
       - ./instance:/home/app/instance
     command: worker
+
   celery-beat:
     container_name: arz-beat
     image: arz-backend:latest

@@ -1,3 +1,5 @@
+"""Settings module."""
+
 import os
 from datetime import timedelta
 
@@ -5,8 +7,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class DefaultConfig:
+    """
+    Default Configuration
+    """
+
     ENV = "production"
-    JSON_SORT_KEYS = True
 
     # JWT Extended
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
@@ -24,6 +29,7 @@ class DefaultConfig:
     APP_LOGO_URL = "https://d2g9qrpaqp4r7k.cloudfront.net/images/restapi/restapi_logo.png"
     APP_BANNER_URL = "https://d2g9qrpaqp4r7k.cloudfront.net/images/restapi/restapi_email_header.jpg"
 
+    # Other colors examples
     # 0511F2 Blue
     # 488C35 Green
     # 488C35 Yellow

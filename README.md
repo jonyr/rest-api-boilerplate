@@ -1,4 +1,4 @@
-# Arzion Backend Boilerplate
+# Backend Boilerplate
 
 This is a backend boilerplate based on many project we did in the past.
 It is based on the following technologies:
