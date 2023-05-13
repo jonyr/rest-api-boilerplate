@@ -1,13 +1,12 @@
 """ Flask App Factory """
 import os
 
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, render_template
 
 from src.cli import register_cli_commands
 from src.config import DefaultConfig
 from src.project.extensions import (
     aws,
-    console,
     cors,
     db,
     event,
@@ -16,11 +15,11 @@ from src.project.extensions import (
     ma,
     migrate,
     rediscache,
-    response,
     schema,
     validator,
     i18n,
     memcachedcache,
+    api,
 )
 from src.project.helpers.utils import make_celery
 from src.project.helpers.babel import get_locale, get_timezone
@@ -59,6 +58,14 @@ def create_app() -> "Flask":
                 mimetype="image/vnd.microsoft.icon",
             )
 
+        @app.get("/")
+        def index():
+            return render_template("index.jinja")
+
+        @app.get("/force_error")
+        def force_error():
+            return 1 / 0
+
         return app, celery
 
 
@@ -90,10 +97,9 @@ def register_extensions(app):
     jwt.init_app(app)
     schema.init_app(app)
     validator.init_app(app)
-    response.init_app(app)
     event.init_app(app)
     aws.init_app(app)
-    console.init_app(app)
+    api.init_app(app)
     i18n.init_app(app, timezone_selector=get_timezone, locale_selector=get_locale)
     filecache.init_app(
         app,

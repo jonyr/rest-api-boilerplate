@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app
 from jinja2 import Environment, PackageLoader
 
-from src.project.app import response
+from src.project.app import api
 from src.project.helpers import get_default_email_template_params
 
 toolbox_bp = Blueprint("toolbox", __name__)
@@ -11,12 +11,17 @@ env = Environment(loader=PackageLoader("src.project", "templates"))
 
 @toolbox_bp.get("/toolbox")
 def toolbox():
-    return response.build({"status": True})
+    """
+    Return a status true message.
+    """
+    return api.response({"status": True})
 
 
 @toolbox_bp.get("/toolbox/templates")
 def email_templates():
-
+    """
+    Returns a list of available email templates.
+    """
     template = env.get_template("emails/base.html")
 
     # GREEN "PRIMARY_COLOR": "#1ca72c",

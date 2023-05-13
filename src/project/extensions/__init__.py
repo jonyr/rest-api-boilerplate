@@ -15,11 +15,9 @@ from flask_babel import Babel
 
 from .flask_schema_manager import SchemaManager
 from .flask_validator_engine import ValidatorEngine
-from .flask_response_manager import ResponseManager
 from .flask_event_manager import EventManager
 from .flask_aws_manager import AWSManager
-from .flask_logger import FlaskLoggger
-
+from .flask_api import FlaskApi
 
 metadata = MetaData(
     naming_convention={
@@ -38,11 +36,10 @@ jwt = JWTManager()
 cors = CORS()
 schema = SchemaManager()
 validator = ValidatorEngine()
-response = ResponseManager()
 event = EventManager()
 aws = AWSManager()
-console = FlaskLoggger()
 filecache = Cache()
 rediscache = Cache()
 memcachedcache = Cache()
 i18n = Babel()
+api = FlaskApi()

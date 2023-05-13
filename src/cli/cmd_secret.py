@@ -1,10 +1,8 @@
+import binascii
 import secrets
 import string
-import binascii
-import os
 
 import click
-
 from flask.cli import with_appcontext
 
 
@@ -28,8 +26,8 @@ def token(num_bytes: int) -> None:
     Returns:
         str: A token string
     """
-    token = secrets.token_hex(num_bytes)
-    click.echo(f"Token generated: {token}")
+    created_token = secrets.token_hex(num_bytes)
+    click.echo(f"Token generated: {created_token}")
 
 
 @secret.command()
@@ -49,8 +47,8 @@ def password(length: int) -> None:
 
     """
     chars: str = string.ascii_letters + string.digits + string.punctuation
-    password: str = "".join(secrets.choice(chars) for _ in range(length))
-    click.echo(f"Password generated: {password}")
+    created_password: str = "".join(secrets.choice(chars) for _ in range(length))
+    click.echo(f"Password generated: {created_password}")
 
 
 @secret.command()
@@ -66,5 +64,5 @@ def token_urlsafe(num_bytes: int) -> None:
     Returns:
         str: A token string
     """
-    token = secrets.token_urlsafe(num_bytes)
-    click.echo(f"Token generated: {token}")
+    created_token = secrets.token_urlsafe(num_bytes)
+    click.echo(f"Token generated: {created_token}")

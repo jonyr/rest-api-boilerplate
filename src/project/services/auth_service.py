@@ -1,13 +1,16 @@
-from datetime import timedelta
-
-from flask import request, current_app
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt, get_jwt_identity, get_jti
-from itsdangerous.exc import BadSignature, BadTimeSignature
+from flask import current_app, request
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jti,
+    get_jwt,
+    get_jwt_identity,
+)
 
 from src.project.exceptions import CustomException
-from src.project.extensions import event, rediscache, response, schema, console
+from src.project.extensions import event, rediscache, schema
+from src.project.helpers import decode_string
 from src.project.helpers.base_service import BaseService
-from src.project.helpers import encode_object, decode_string
 from src.project.models import Role
 from src.project.repositories import AuthRepository
 
@@ -21,7 +24,6 @@ class AuthService(BaseService):
 
     @classmethod
     def post(cls, payload: dict = None, commit: bool = True, **kwargs):
-
         payload = payload or request.get_json()
 
         if cls.exists(payload.get("email", "missing").lower()):
@@ -91,7 +93,6 @@ class AuthService(BaseService):
 
     @classmethod
     def login(cls, payload: dict = None):
-
         payload = payload or request.get_json()
 
         credentials = schema.load(payload, name="Login")
@@ -128,7 +129,6 @@ class AuthService(BaseService):
 
     @classmethod
     def me(cls, identity=None):
-
         identity = identity or get_jwt_identity()
 
         user = cls.get_model().find_by_id(identity)
@@ -179,7 +179,6 @@ class AuthService(BaseService):
 
     @classmethod
     def password_update(cls, payload: dict = None):
-
         payload = payload or request.get_json()
 
         decoded_info = decode_string(

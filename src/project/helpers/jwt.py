@@ -1,5 +1,5 @@
 from typing import Any
-from src.project.extensions import jwt, response, rediscache
+from src.project.extensions import jwt, rediscache, api
 
 
 def register_jwt_handlers():
@@ -13,7 +13,7 @@ def register_jwt_handlers():
         The authorization token is not valid or it was altered.
         """
 
-        return response.build_error(
+        return api.error(
             {
                 "code": "InvalidTokenError",
                 "description": error,
@@ -37,7 +37,7 @@ def register_jwt_handlers():
             'exp': 1620145310,
             }
         """
-        return response.build_error(
+        return api.error(
             {
                 "code": "ExpiredTokenError",
                 "description": "I can't let you do that",
@@ -50,7 +50,7 @@ def register_jwt_handlers():
         """
         Missing authorization token header.
         """
-        return response.build_error(
+        return api.error(
             {
                 "code": "MissingTokenError",
                 "description": error,
@@ -60,8 +60,18 @@ def register_jwt_handlers():
 
     @jwt.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_payload):
+        """
+        On revoked token, raise RevokedToken 401
 
-        return response.build_error(
+        Args:
+            jwt_header (dict): JWT header
+            jwt_payload (dict): JWT payload
+
+        Returns:
+            dict: Error response
+        """
+
+        return api.error(
             {
                 "code": "RevokedTokenError",
                 "description": "The Token is revoked",
@@ -72,7 +82,6 @@ def register_jwt_handlers():
     # Callback function to check if a JWT exists in the redis blocklist
     @jwt.token_in_blocklist_loader
     def check_if_token_is_revoked(jwt_header, jwt_payload):
-
         jti = jwt_payload["jti"]
         token_in_redis = rediscache.get(jti)
 

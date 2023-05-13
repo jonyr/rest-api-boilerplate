@@ -10,40 +10,65 @@ ORDER_OPTIONS = {"asc": asc, "desc": desc}
 
 
 class BaseRepository:
+    """
+    Base repository for all repositories to inherit from.
+    """
 
     model = None
 
     @classmethod
     def get_model(cls):
+        """
+        Returns the model class.
+        """
         return cls.model
 
     @classmethod
     def get_polymorphic_class_names(cls) -> dict:
+        """
+        Returns a dictionary with the polymorphic_identity as key and the class name as value.
+        """
         subclasses = cls.model.__class__.__subclasses__(cls.model)
+
         polymorphic_ids = {}
+
         for subclass in subclasses:
             if "polymorphic_identity" in subclass.__mapper_args__:
                 polymorphic_ids[subclass.__mapper_args__.get("polymorphic_identity")] = subclass.__name__
+
         return polymorphic_ids
 
     @classmethod
     def get_polymorphic_key(cls) -> Optional[str]:
+        """
+        Returns the polymorphic key if it exists.
+        """
         mapper_args = getattr(cls.model, "__mapper_args__", False)
+
         if mapper_args and ("polymorphic_on" in mapper_args):
             return getattr(mapper_args.get("polymorphic_on", {}), "key", None)
+
         return None
 
     @classmethod
     def get_polymorphic_class_name(cls, payload: dict) -> Optional[str]:
+        """
+        Returns the polymorphic class name if it exists.
+        """
         polymorphic_key = cls.get_polymorphic_key()
+
         if polymorphic_key:
             if polymorphic_key in payload:
                 polymorphics_class_names = cls.get_polymorphic_class_names()
                 return polymorphics_class_names.get(payload[polymorphic_key], None)
+
         return None
 
     @classmethod
     def get_model_name(cls, payload: dict = None):
+        """
+        Returns the model name.
+        """
         subclass_name = cls.get_polymorphic_class_name(payload)
         if subclass_name:
             return subclass_name
@@ -51,10 +76,16 @@ class BaseRepository:
 
     @staticmethod
     def get_session():
+        """
+        Returns the current session.
+        """
         return db.session
 
     @staticmethod
     def add(obj):
+        """
+        Adds the given object to the current session.
+        """
         db.session.add(obj)
         return obj
 
@@ -68,6 +99,7 @@ class BaseRepository:
     ):
         """
         This method return a filtered queryset based on given conditions.
+
             :param query: SQLAlchemy CustomBaseQuery
             :param model_class: is the model class you want to run the filter upon
             :param conditions: It is a list of tuples, ie: [(key,operator,value)]
@@ -81,6 +113,7 @@ class BaseRepository:
               >>>   in for in_
               >>>   is for is_
               >>>   like for like
+              >>>   ilike for ilike
             :param kwargs: To extend functionality
 
         :raise Exception: Raise this exception when:
@@ -223,7 +256,6 @@ class BaseRepository:
 
     @staticmethod
     def order_generation(order=None, mappings=None, custom_force=None):
-
         order = order or []
         mappings = mappings or {}
         ordering = []
@@ -245,7 +277,6 @@ class BaseRepository:
 
     @classmethod
     def order(cls, query, **kwargs):
-
         try:
             # flat=False creates a list with all the values for example
             # ?order=id,asc&order=updated_at,desc results in
@@ -269,7 +300,6 @@ class BaseRepository:
 
     @staticmethod
     def paginate(query, **kwargs) -> Tuple:
-
         pagination = None
         result = query
 

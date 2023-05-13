@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytz
 
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.orm.attributes import flag_modified
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -11,7 +11,6 @@ from src.project.helpers import random_num, encode_object, decode_string, get_ip
 
 
 class User(db.Model):
-
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, index=True)
@@ -43,6 +42,48 @@ class User(db.Model):
         self.email = kwargs.get("email", "").lower()
         self.password = self.encrypt_password(kwargs.get("password", ""))
         self.activation_code = random_num(6)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+        }
+
+    @classmethod
+    def get_data(cls, search: str = None, start: int = 0, length: int = 10, sort: str = None, **kwargs):
+        query = cls.query
+
+        # search filter
+        if search:
+            query = query.filter(
+                or_(
+                    cls.first_name.ilike(f"%{search}%"),
+                    cls.last_name.ilike(f"%{search}%"),
+                    cls.email.ilike(f"%{search}%"),
+                )
+            )
+
+        total = query.count()
+
+        if sort:
+            order = []
+            for s in sort.split(","):
+                if s.startswith("-"):
+                    order.append(getattr(cls, s[1:]).desc())
+                else:
+                    order.append(getattr(cls, s[1:]).asc())
+            if order:
+                query = query.order_by(*order)
+
+        query = query.offset(start).limit(length)
+
+        return {
+            "data": [cls.to_dict(user) for user in query.all()],
+            "total": total,
+            "per_page": length,
+        }
 
     @staticmethod
     def encrypt_password(password: str):
@@ -118,7 +159,6 @@ class User(db.Model):
         self.updated_at = datetime.utcnow()
 
     def validate_activation_code(self, code):
-
         if self.activation_code != str(code):
             raise CustomException("Invalid code", "InvalidActivationCodeError")
 

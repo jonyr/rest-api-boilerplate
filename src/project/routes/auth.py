@@ -1,8 +1,7 @@
-from datetime import timedelta
-from flask import Blueprint, request, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jti
+from flask import Blueprint, current_app, render_template
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
-from src.project.app import response, schema, validator, rediscache
+from src.project.app import api, schema, validator
 from src.project.services import AuthService
 
 auth_bp = Blueprint("auth", __name__)
@@ -36,7 +35,7 @@ def create_registration():
 
     meta = None if current_app.config.get("ENV") == "production" else {"code": user.activation_code}
 
-    return response.build(registration, meta)
+    return api.response(registration, meta)
 
 
 @auth_bp.post("/auth/activations")
@@ -52,7 +51,7 @@ def activate_registration():
     Activates a user.
     """
     user = AuthService.activate_registration()
-    return response.build(user, code=200)
+    return api.response(user, code=200)
 
 
 @auth_bp.post("/auth/tokens")
@@ -61,7 +60,7 @@ def create_token():
     Creates an access token for a give pair of credentials.
     """
     tokens = AuthService.login()
-    return response.build(tokens)
+    return api.response(tokens)
 
 
 @auth_bp.put("/auth/tokens")
@@ -71,7 +70,7 @@ def refresh_token():
     Refreshes an access token.
     """
     tokens = AuthService.refresh()
-    return response.build(tokens)
+    return api.response(tokens)
 
 
 @auth_bp.delete("/auth/tokens")
@@ -81,7 +80,7 @@ def delete_token():
     Destroys access token.
     """
     AuthService.logout()
-    return response.build(None)
+    return api.response(None)
 
 
 @auth_bp.post("/auth/passwords/reset")
@@ -95,7 +94,7 @@ def request_password_clean():
     """
     token = AuthService.request_password_reset()
     meta = None if current_app.config.get("ENV") == "production" else {"token": token}
-    return response.build(None, meta)
+    return api.response(None, meta)
 
 
 @auth_bp.post("/auth/passwords")
@@ -111,7 +110,7 @@ def update_cleaned_password():
     Updates a password.
     """
     AuthService.password_update()
-    return response.build(None)
+    return api.response(None)
 
 
 @auth_bp.get("/auth/me")
@@ -122,4 +121,12 @@ def get_my_info():
     """
     identity = get_jwt_identity()
     user = AuthService.me(identity)
-    return response.build(user)
+    return api.response(user)
+
+
+@auth_bp.get("/users")
+def get_users():
+    """
+    Gets users.
+    """
+    return render_template("users.html")
