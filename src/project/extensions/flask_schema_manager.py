@@ -15,10 +15,7 @@ EXTENSION_NAME = "flask-schema"
 class SchemaManager(object):
     """Schema Manager."""
 
-    def __init__(
-        self,
-        app: Optional[Flask] = None,
-    ) -> None:
+    def __init__(self, app: Optional[Flask] = None) -> None:
         self.errors = {}
 
         if app is not None:
@@ -26,7 +23,6 @@ class SchemaManager(object):
 
     def init_app(self, app: Flask) -> None:
         """Initialize the app."""
-        self.app = app
 
         app.extensions = getattr(app, "extensions", {})
         app.extensions[EXTENSION_NAME] = self

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Rest API" />
+        <meta name="keywords"
+              content="Rest API, Flask, Python, SQLAlchemy, Marshmallow, JWT, Docker, Docker Compose, PostgreSQL, Redis"/>
+        <meta name="author" content="Juan Rabadan" />
+        <title>Bulma</title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"/>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        {# <link rel="stylesheet" href="/static/css/debug.css" /> #}
+    </head>
+    <body>
+        <nav class="navbar has-shadow is-white">
+            <!-- Logo brand -->
+            <div class="navbar-brand">
+                <a href="#" class="navbar-item">
+                    <img src="/static/img/logo.png" style="max-height:70px;" class="py-2 px-2" />
+                </a>
+                <a class="navbar-burger" id="burger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </a>
+            </div>
+            <div class="navbar-menu" id="nav-links">
+                <div class="navbar-end">
+                    <a class="navbar-item">My Account</a>
+                    <a class="navbar-item">Settings</a>
+                </div>
+            </div>
+        </nav>
+        <!-- Breadcumbs -->
+        <div class="section pt-4 pb-0">
+            <nav class="breadcrumb has-arrow-separator">
+                <ul class="container">
+                    <li>
+                        <a class="has-text-grey">Cofee Ninja</a>
+                    </li>
+                    <li>
+                        <a class="has-text-grey">Shop</a>
+                    </li>
+                    <li class="is-active">
+                        <a href="">Docker Dark Roast</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Product -->
+        <section class="section">
+            <div class="container">
+                <div class="columns is-vcentered is-multiline">
+                    <div class="column is-6-tablet is-3-desktop">
+                        <h1 class="is-size-3-mobile is-size-1-desktop title">Docker</h1>
+                        <h2 class="is-size-3-mobile is-size-2-desktop subtitle">Dark Roast</h2>
+                        <p>
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque accusantium autem odit tempore enim inventore consequatur ut voluptatum explicabo! Autem impedit culpa assumenda blanditiis explicabo voluptas consectetur reprehenderit inventore deleniti.
+                        </p>
+                    </div>
+                    <div class="column is-6-tablet is-5-desktop has-text-centered">
+                        <!-- Add image dummy from internet -->
+                        <img src="/static/img/coffee2.jpg" alt="Docker Dark Roast" class="px-6"/>
+                    </div>
+                    <div class="column is-12-tablet is-4-desktop">
+                        <div class="is-size-4 mb-4">$10.95</div>
+                        <p class="mb-4">
+                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Distinctio excepturi possimus cupiditate cum culpa est pariatur provident? Delectus voluptatem, culpa placeat, incidunt reprehenderit facere!
+                        </p>
+                        <form>
+                            <div class="control mb-6">
+                                <div class="select is-dark">
+                                    <select>
+                                        <option>
+                                            Small (250s)
+                                        </option>
+                                        <option>
+                                            Larger (500g)
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="button is-primary">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <div class="columns is-8 is-variable">
+                    <div class="column is-7-tablet">
+                        <!-- tabbed content -->
+                        <div class="tabs is-boxed">
+                            <ul>
+                                <li class="is-active" data-target="product-details">
+                                    <a>Product Details</a>
+                                </li>
+                                <li data-target="delivery-information">
+                                    <a>Delivery Information</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="px-2" id="tab-content">
+                            <div id="product-details">
+                                <h3 class="is-size-5 titlte">Product Details</h3>
+                                <p>
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo, eligendi aliquid molestias voluptates perferendis ad nisi dolore corrupti aut accusamus cupiditate quam a laudantium minima delectus praesentium nulla recusandae est.
+                                    Voluptates facilis alias sed recusandae assumenda, explicabo dolorum incidunt tenetur doloribus, maiores minus repudiandae totam voluptatum corrupti! Ducimus eligendi quas assumenda rerum autem, suscipit repudiandae ut molestias? Velit, nemo praesentium!
+                                </p>
+                            </div>
+                            <div id="delivery-information" class="is-hidden">
+                                <h3 class="is-size-5 titlte">Delivery Information</h3>
+                                <p>
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo, eligendi aliquid molestias voluptates perferendis ad nisi dolore corrupti aut accusamus cupiditate quam a laudantium minima delectus praesentium nulla recusandae est.
+                                    Voluptates facilis alias sed recusandae assumenda, explicabo dolorum incidunt tenetur doloribus, maiores minus repudiandae totam voluptatum corrupti! Ducimus eligendi quas assumenda rerum autem, suscipit repudiandae ut molestias? Velit, nemo praesentium!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-5-tablet">
+                        <div class="message is-dark">
+                            <div class="message-header">
+                                <p>Earns Points with the Cofee Club</p>
+                            </div>
+                            <div class="message-body">
+                                <p>
+                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni, nostrum unde repellat culpa iusto dolorem, illo laborum placeat quidem consectetur incidunt eos officia reiciendis fugit necessitatibus nobis itaque? Hic, quasi.
+                                    Recusandae facilis at dicta illo expedita vero nesciunt porro quaerat enim.
+                                </p>
+                                <div class="has-text-centered">
+                                    <button class="button" id="signup">Signup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Cards -->
+        <section class="section is-hidden-mobile">
+            <div class="container">
+                <h3 class="title has-text-centered is-size-4">Related Products</h3>
+                <div class="columns mt-5 is-8 is-variable is-centered">
+                    <div class="column is-4-tablet is-3 desktop">
+                        <div class="card">
+                            <div class="card-image has-text-centered px-6">
+                                <img src="https://bulma.io/images/placeholders/1280x960.png" alt="">
+                            </div>
+                            <div class="card-content">
+                                <p>$12.95</p>
+                                <p class="title is-size-5">Cortado Cup</p>
+                            </div>
+                            <footer class="card-footer">
+                                <p class="card-footer-item">
+                                    <a class="has-text-grey">View</a>
+                                </p>
+                            </footer>
+                        </div>
+                    </div>
+                    <div class="column is-4-tablet is-3 desktop">
+                        <div class="card">
+                            <div class="card-image has-text-centered px-6">
+                                <img src="https://bulma.io/images/placeholders/1280x960.png" alt="">
+                            </div>
+                            <div class="card-content">
+                                <p>$12.95</p>
+                                <p class="title is-size-5">
+                                    Cortado Cup
+                                </p>
+                            </div>
+                            <footer class="card-footer">
+                                <p class="card-footer-item">
+                                    <a class="has-text-grey">View</a>
+                                </p>
+                            </footer>
+                        </div>
+                    </div>
+                    <div class="column is-4-tablet is-3 desktop">
+                        <div class="card">
+                            <div class="card-image has-text-centered px-6">
+                                <img src="https://bulma.io/images/placeholders/1280x960.png" alt="">
+                            </div>
+                            <div class="card-content">
+                                <p>
+                                    $12.95
+                                </p>
+                                <p class="title is-size-5">
+                                    Cortado Cup
+                                </p>
+                            </div>
+                            <footer class="card-footer">
+                                <p class="card-footer-item">
+                                    <a class="has-text-grey">View</a>
+                                </p>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Modal -->
+        <div class="modal">
+            <div class="modal-background">
+            </div>
+            <div class="modal-content has-background-white py-5 px-5">
+                <h3 class="title mb-6">
+                    Join the Club
+                </h3>
+                <form>
+                    <div class="field">
+                        <label class="label">
+                            name
+                        </label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Name" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">
+                            email
+                        </label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Email" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <label for="" class="checkbox">
+                                <input type="checkbox" />
+                                I agree to the <a href="#">terms and conditions</a>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-6 has-text-centered">
+                        <button class="button is-warning">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>Copyright 2023 Coffee Ninja</p>
+            </div>
+        </footer>
+
+        <script type="text/javascript" src="/static/js/index.js"></script>
+    </body>
+</html>

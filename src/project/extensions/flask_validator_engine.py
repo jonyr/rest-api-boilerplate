@@ -1,12 +1,10 @@
 # pylint: disable=unused-argument
 import re
+from typing import Optional
 from datetime import datetime
 from functools import wraps
-from flask import request
+from flask import request, Flask
 from werkzeug.exceptions import HTTPException
-
-EXTENSION_NAME = "flask-validator-engine"
-
 
 class ValidatorEngine(object):
     """Flask ValidatorEngine is an extension to validate flask request data.
@@ -104,18 +102,18 @@ class ValidatorEngine(object):
     @credits https://github.com/adekoder/flask-validator
     """
 
-    def __init__(self, app=None):
+    def __init__(self, app: Optional[Flask] = None) -> None:
 
         self.errors = {}
 
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app: "Flask"):
-        self.app = app
+    def init_app(self, app: Flask):
+        """Initialize Validator engine extension with the flask app"""
 
         app.extensions = getattr(app, "extensions", {})
-        app.extensions[EXTENSION_NAME] = self
+        app.extensions["validator_engine"] = self
 
         @app.teardown_appcontext
         def teardown_response_service(response_or_exc):  # pylint: disable=unused-variable
@@ -147,6 +145,7 @@ class ValidatorEngine(object):
         return wrapper
 
     def check_values(self, data, validation_rules):
+        """Check if the values in the data dictionary matches the validation rules"""
         for field, rules in validation_rules.items():
             for rule in rules:
                 validator_name, validator_args = self.rule_splitter(rule)

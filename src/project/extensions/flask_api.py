@@ -4,15 +4,15 @@ which handles responses and exceptions for the framework."""
 import logging
 import time
 import traceback
+import uuid
+from datetime import datetime
 from logging.handlers import SysLogHandler
 from typing import Union
-from datetime import datetime
 
-from flask import Flask, jsonify, make_response, request, g, current_app
+from flask import Flask, current_app, g, jsonify, make_response, request
+from flask.logging import default_handler
 from flask_sqlalchemy.pagination import Pagination
 from werkzeug.exceptions import HTTPException
-
-EXTENSION_NAME = "flask-api"
 
 
 class Color:
@@ -35,7 +35,7 @@ class FlaskApi:
     """
 
     def __init__(self, app: Flask = None):
-        self.logger = logging.getLogger(__name__)
+        self.logger = None
 
         if app is not None:
             self.init_app(app)
@@ -47,6 +47,7 @@ class FlaskApi:
         Args:
             app (Flask): Flask app
         """
+        self.logger = logging.getLogger(app.name)
 
         # configure exception handlers
         app.register_error_handler(Exception, self.handle_exception)
@@ -55,6 +56,10 @@ class FlaskApi:
         def befor_request():
             """This function handles the before request."""
             g.start = time.time()
+            g.remote_ip = request.headers.get(
+                "X-Forwarded-For", request.remote_addr
+            ).split(",")[0]
+            g.request_id = str(uuid.uuid4())
 
         @app.after_request
         def after_request(response):
@@ -63,14 +68,14 @@ class FlaskApi:
             if self.should_skip_logging_response():
                 return response
 
+            response.headers["X-Request-Id"] = g.request_id
+
+            # preparing the debug information message
             method = request.method
             url = request.url
             status_code = response.status_code
             duration = round(time.time() - g.start, 2)
             request_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ip_address = request.headers.get(
-                "X-Forwarded-For", request.remote_addr
-            ).split(",")[0]
             json_payload = request.get_json(silent=True)
             error_response = (
                 f"ERROR  : {Color.RED}{response.json}{Color.RESET}"
@@ -86,22 +91,29 @@ class FlaskApi:
 
             json_payload = f"JSON   : {json_payload}" if json_payload else ""
 
-            mensaje = f"""
+            message = f"""
 >>>>>>>>  START REQUEST >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+   REQUEST: {g.request_id}
+   DATE   : {request_time} DURATION: {duration}s IP: {g.remote_ip}
    METHOD : {method}
-   STATUS : {request_color}{status_code}{Color.RESET}
    URL    : {url}
-   DATE   : {request_time} DURATION: {duration}s IP: {ip_address}
+   STATUS : {request_color}{status_code}{Color.RESET}
    {json_payload}
    {error_response}
 
 <<<<<<<<<  END REQUEST  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 """
-            print(mensaje)
+            self.log(message, logging.INFO)
 
             return response
+
+        @app.teardown_request
+        def teardown_request(exception):  # pylint: disable=unused-argument
+            g.pop("remote_ip", None)
+            g.pop("start", None)
+            g.pop("request_id", None)
 
         # configure logging
         log_level = app.config.get("LOG_LEVEL", logging.INFO)
@@ -113,7 +125,7 @@ class FlaskApi:
         app.log = self.log
 
         app.extensions = getattr(app, "extensions", {})
-        app.extensions[EXTENSION_NAME] = self
+        app.extensions["api"] = self
 
     # LOGGING STUFF BELOW #
 
@@ -134,12 +146,14 @@ class FlaskApi:
             syslog_log_level (Union[str, int]): Syslog log level
         """
 
+        # remove default handler
+        app.logger.removeHandler(default_handler)
         app.logger.setLevel(app_log_level)
 
         # setup stream handler
         stream_handler = logging.StreamHandler()
         stream_handler_formatter = logging.Formatter(
-            "[%(asctime)s] [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         stream_handler.setFormatter(stream_handler_formatter)
         stream_handler.setLevel(stream_log_level)
@@ -148,7 +162,9 @@ class FlaskApi:
         # setup syslog handler
         if app.config.get("SYSLOG_ADDRESS") is not None:
             syslog_handler = SysLogHandler(address=app.config.get("SYSLOG_ADDRESS"))
-            syslog_handler_formatter = logging.Formatter("[%(levelname)s] %(message)s")
+            syslog_handler_formatter = logging.Formatter(
+                "%(asctime)s MORFI %(message)s", datefmt="%b %d %H:%M:%S"
+            )
             syslog_handler.setFormatter(syslog_handler_formatter)
             syslog_handler.setLevel(syslog_log_level)
             self.logger.addHandler(syslog_handler)
@@ -180,12 +196,12 @@ class FlaskApi:
         # werkzeug.exceptions.HTTPException 4XX
         if isinstance(error, HTTPException):
             response, status_code = self.parse_http_exception(error)
-            self.log(self.parse_exception_message(error), logging.ERROR)
+            self.log(self.parse_exception_message(error, response), logging.INFO)
             return self.error(response, status_code)
 
         # Exception 5XX
         response = self.parse_exception(error)
-        self.log(self.parse_exception_message(error), logging.ERROR)
+        self.log(self.parse_exception_message(error, response), logging.ERROR)
         return self.error(response)
 
     def parse_http_exception(self, error):
@@ -228,11 +244,7 @@ class FlaskApi:
             json: response
         """
 
-        response = {"code": error.__class__.__name__, "description": str(error)}
-
-        # TODO: log error
-
-        return response
+        return {"code": error.__class__.__name__, "description": str(error)}
 
     # RESPONSE STUFF BELOW #
 
@@ -283,26 +295,6 @@ class FlaskApi:
 
         return make_response(jsonify(_response)), code
 
-    def http_status_code(self, code: int = None):
-        """
-        This function sets the status code
-
-        Args:
-            code (int, optional): status code. Defaults to None.
-
-        Returns:
-            int: status code
-        """
-        status_codes = {
-            "GET": 200,
-            "POST": 201,
-            "PUT": 200,
-            "PATCH": 200,
-            "DELETE": 204,
-        }
-
-        return code or status_codes.get(request.method, 200)
-
     def build_pagination(self, pagination):
         """
         This function builds the pagination
@@ -324,6 +316,7 @@ class FlaskApi:
                 "total": pagination.total,
             }
 
+    # HELPER FUNCTIONS #
     def handle_custom_exceptions(self, error):
         """
         This function handles custom http exceptions
@@ -353,7 +346,7 @@ class FlaskApi:
 
         return self.error(response, status_code)
 
-    def parse_exception_message(self, error) -> str:
+    def parse_exception_message(self, error, response: dict = None) -> str:
         """
         This function parses the exception to a string
 
@@ -366,7 +359,12 @@ class FlaskApi:
 
         traceback_list = traceback.extract_tb(error.__traceback__)
         filename, line_number, function_name, code = traceback_list[-1]
-        return f"""Error on line {line_number} in file {filename}\n\nMethod: {function_name}\n{code}\n"""
+
+        return f"""Error on line {line_number} in file {filename}
+ Method: {function_name}
+ Code: {code}
+ RQ: {request.url}
+ RS: {str(response)}"""
 
     def color_from_status_code(self, status_code: int):
         """
@@ -422,3 +420,23 @@ class FlaskApi:
             return True
 
         return False
+
+    def http_status_code(self, code: int = None):
+        """
+        This function sets the status code
+
+        Args:
+            code (int, optional): status code. Defaults to None.
+
+        Returns:
+            int: status code
+        """
+        status_codes = {
+            "GET": 200,
+            "POST": 201,
+            "PUT": 200,
+            "PATCH": 200,
+            "DELETE": 204,
+        }
+
+        return code or status_codes.get(request.method, 200)

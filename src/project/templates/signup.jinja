@@ -1,0 +1,38 @@
+{% extends "base.jinja" %}
+{% from "helpers/form.jinja" import render_user_field, render_email_field, render_password_field, render_agree_terms_field %}
+{% block title %}
+    Signup
+{% endblock title %}
+{% block content %}
+    <div class="hero is-fullheight">
+        <div class="hero-body is-justify-content-center is-align-items-center">
+            <div class="columns is-flex is-flex-direction-column">
+                <div class="column field has-text-centered">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}"
+                         width="100"
+                         alt="Company Logo"/>
+                </div>
+                <div class="columns is-flex is-flex-direction-column box">
+                    <h1 class="title">Signup</h1>
+                    <form method="post" action="{{ url_for('admin.signup_form') }}">
+                        {{ form.csrf_token }}
+                        {{ render_user_field(form.name) }}
+                        {{ render_email_field(form.email) }}
+                        {{ render_password_field(form.password) }}
+                        {{ render_password_field(form.confirm_password) }}
+                        {{ render_agree_terms_field(form.agree_terms) }}
+
+                        <div class="column">
+                            <button class="button is-primary is-fullwidth" type="submit">Create an account</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="has-text-centered">
+                    <p>
+                        Already have an account?  <a href="{{ url_for('admin.login_form') }}" class="has-text-primary">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

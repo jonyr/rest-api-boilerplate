@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta name="description"
+              content="A simple CRUD app using Flask and SQLAlchemy"/>
+        <meta name="keywords" content="Flask, SQLAlchemy, CRUD, Python" />
+        <title>Users</title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"/>
+        <link rel="stylesheet"
+              href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css"/>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container">
+                <h1 class="title">Users</h1>
+                <div class="columns">
+                    <div class="column is-12">
+                        <div id="grid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+        <script>
+            const updateUrl = (prev, query) => {
+                return prev + (prev.indexOf('?') >= 0 ? '&' : '?') + new URLSearchParams(query).toString();
+            };
+
+      const grid = new gridjs.Grid({
+        columns: [
+          "Id",
+          "First Name",
+          "Last Name",
+          { id: 'email', name: 'Email', sort: false, formatter: (cell, row) => {
+            return gridjs.html('<a href="mailto:' + cell + '">' + cell + '</a>');
+          }},
+          {
+            name: "Actions",
+            formatter: (_, row) =>
+              gridjs.html(
+                `<button class="button is-small is-danger" data-row-id="${ row.cells[0].data }">Delete</button>`
+              ),
+            sort: false
+          },
+        ],
+        server: {
+          url: "/api/users",
+          then: (res) =>
+            res.data.map((user) => [
+              user.id,
+              user.first_name,
+              user.last_name,
+              user.email,
+              null, // We use null here to add the delete button column
+            ]),
+          total: (res) => res.total,
+        },
+        search: {
+          server: {
+            url: (prev, search) => updateUrl(prev, {search}),
+          },
+        },
+        pagination: {
+          limit: 3,
+          server: {
+            url: (prev, page, limit) => updateUrl(prev, {start: page * limit, length: limit}),
+            totalPages: (res) => Math.ceil(res.total / res.per_page),
+          },
+        },
+        sort: {
+          multiColumn: true,
+          server: {
+            url: (prev, columns) => {
+              if (!columns.length) return prev;
+              const col = columns[0];
+              const dir = col.direction === 1 ? "+" : "-";
+              const colName =
+                col.id === 0 ? "id" : col.id === 1 ? "first_name" : "last_name";
+              const sort = `${dir}${colName}`;
+              return updateUrl(prev, {sort});
+            },
+          },
+        },
+      });
+
+      grid.render(document.getElementById("grid"));
+        </script>
+    </body>
+</html>

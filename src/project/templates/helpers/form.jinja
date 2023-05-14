@@ -1,0 +1,92 @@
+{% macro render_user_field(field) %}
+    {% set classes = 'input' %}
+    {% if field.errors %}
+        {% set classes = classes + " is-danger" %}
+    {% endif %}
+    <div class="field">
+        {{ field.label(class="label") }}
+        <div class="control has-icons-left">
+            {{ field(class_=classes, placeholder="John Doe")|safe }}
+            <span class="icon is-small is-left">
+                <i class="fa fa-user"></i>
+            </span>
+        </div>
+        {% if field.errors %}
+            <p class="help is-danger">{{ field.errors[0] }}</p>
+        {% elif field.description %}
+            <p class="help">{{ field.description }}</p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_email_field(field) %}
+    {% set classes = 'input' %}
+    {% if field.errors %}
+        {% set classes = classes + " is-danger" %}
+    {% endif %}
+    <div class="field">
+        {{ field.label(class="label") }}
+        <div class="control has-icons-left">
+            {{ field(class_=classes, placeholder="e.g. john@doe.com")|safe }}
+            <span class="icon is-small is-left">
+                <i class="fa fa-envelope"></i>
+            </span>
+        </div>
+        {% if field.errors %}
+            <p class="help is-danger">{{ field.errors[0] }}</p>
+        {% elif field.description %}
+            <p class="help">{{ field.description }}</p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_password_field(field) %}
+    {% set classes = 'input' %}
+    {% if field.errors %}
+        {% set classes = classes + " is-danger" %}
+    {% endif %}
+    <div class="field">
+        {{ field.label(class="label") }}
+        <div class="control has-icons-left">
+            {{ field(class_=classes, placeholder="********")|safe }}
+            <span class="icon is-small is-left">
+                <i class="fa fa-lock"></i>
+            </span>
+        </div>
+        {% if field.errors %}
+            <p class="help is-danger">{{ field.errors[0] }}</p>
+        {% elif field.description %}
+            <p class="help">{{ field.description }}</p>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_agree_terms_field(field) %}
+    <div class="field">
+        <div class="control">
+            <label class="checkbox">
+                {{ field(**kwargs)|safe }}
+                I agree to the <a href="#">terms and conditions</a>
+            </label>
+            {% if field.errors %}
+                <p class="help is-danger">{{ field.errors[0] }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_signup_field(field) %}
+    {% if field.type == 'BooleanField' %}
+        <div class="column">
+            <label class="label">
+                {{ field(**kwargs)|safe }}
+                {{ field.label.text }}
+            </label>
+        </div>
+    {% else %}
+        <div class="column">
+            {{ field.label(class="label") }}
+            {{ field(**kwargs)|safe }}
+        </div>
+    {% endif %}
+{% endmacro %}

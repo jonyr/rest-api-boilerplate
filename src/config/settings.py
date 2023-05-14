@@ -1,6 +1,7 @@
 """Settings module."""
 
 import os
+import logging
 from datetime import timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -41,4 +42,10 @@ class DefaultConfig:
     # https://console.cloud.google.com/apis/credentials/key/9c6a62f4-00ef-4a38-b3da-70935d76dd8a?hl=es&project=arzionsrl
     GOOGLE_MAPS_API_KEY = None
 
+    # Logging stuff
     REQUEST_LOGGER = False
+    LOG_LEVEL = logging.INFO
+    STREAM_LOG_LEVEL = logging.INFO
+    SYSLOG_LOG_LEVEL = logging.ERROR
+    SYSLOG_ADDRESS = None
+

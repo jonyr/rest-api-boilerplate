@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Rest API" />
+        <meta name="keywords"
+              content="Rest API, Flask, Python, SQLAlchemy, Marshmallow, JWT, Docker, Docker Compose, PostgreSQL, Redis"/>
+        <meta name="author" content="Juan Rabadan" />
+        <title>
+            {% block title %}
+            {% endblock title %}
+        </title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+        {% block styles %}
+        {% endblock styles %}
+    </head>
+    <body>
+        {% block content %}
+        {% endblock content %}
+        <script src="https://unpkg.com/htmx.org@1.8.6"></script>
+        {% block scripts %}
+        {% endblock scripts %}
+    </body>
+</html>
