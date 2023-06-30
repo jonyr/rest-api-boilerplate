@@ -2,4 +2,4 @@
 
 black==23.3.0
 flake8==6.0.0
-djlint==1.27.2
+djlint==1.31.1

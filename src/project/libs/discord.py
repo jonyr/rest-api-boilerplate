@@ -11,6 +11,9 @@ def post_discord_message(message: str):
     Responses:
         bool: True if success
     """
+
+    # TODO: Revisar este link: https://discord.com/moderation/4405223159703-322-using-webhooks-and-embeds
+
     payload = {"content": message}
 
     base_url = current_app.config.get("DISCORD_WEBHOOK_URL")
