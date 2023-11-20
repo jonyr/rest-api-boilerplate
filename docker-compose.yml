@@ -1,5 +1,7 @@
 version: '3'
+
 services:
+
   flask-api:
     container_name: arz-api
     image: arz-backend:latest
@@ -13,8 +15,9 @@ services:
       - ./logs:/var/log/gunicorn:rw
       - ./instance:/home/app/instance
     command: api
+
     healthcheck:
-      test: curl --fail localhost:5000/health || exit 1
+      test: curl --fail localhost:8000/health || exit 1
       interval: 300s
       retries: 5
       start_period: 15s
