@@ -23,4 +23,6 @@ redis==5.0.1
 pylibmc==1.6.3
 flower==2.0.1
 googlemaps==4.10.0
+marshmallow==3.20.1
 
+setuptools==68.2.2
